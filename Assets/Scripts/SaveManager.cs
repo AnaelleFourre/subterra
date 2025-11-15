@@ -3,36 +3,52 @@ using System.IO;
 
 public class SaveManager
 {
-    private static string Path => Application.persistentDataPath + "/save_subterra.json";
     public static SaveData currentData = new SaveData();
+    public static int currentSlot = 0;
+    private static readonly string[] paths = new string[3];
 
-    public static void Save(Vector3 position, float playTime)
+    static SaveManager()
     {
+        for (int i = 0; i < 3; i++)
+        {
+            paths[i] = Application.persistentDataPath + $"/save_{i}.json";
+        }
+    }
+
+    public static void Save(Vector3 position)
+    {
+        var path = paths[currentSlot];
+
         currentData.playerPosition = position;
-        currentData.playTime = playTime;
+        currentData.playTime = TimeManager.instance.playTime;
 
         string json = JsonUtility.ToJson(currentData, true);
-        File.WriteAllText(Path, json);
+        File.WriteAllText(path, json);
 
-        Debug.Log("Sauvegarde effectuée en " + Path);
+        Debug.Log("Sauvegarde effectuée en " + path);
     }
 
     public static bool Load()
     {
-        if (!File.Exists(Path))
+        var path = paths[currentSlot];
+
+        if (!File.Exists(path))
         {
-            Debug.LogWarning(Path + ": aucune sauvegarde trouvée");
+            Debug.LogWarning(path + ": aucune sauvegarde trouvée");
             return false;
         }
 
-        string json = File.ReadAllText(Path);
+        string json = File.ReadAllText(path);
         currentData = JsonUtility.FromJson<SaveData>(json);
+
+        TimeManager.instance.SetPlayTime(currentData.playTime);
+
         return true;
     }
 
     public static void InitSave(string saveName, Vector3 startPosition)
     {
-        string path = Application.persistentDataPath + "/save_subterra.json";
+        var path = paths[currentSlot];
 
         if (!File.Exists(path))
         {
@@ -44,15 +60,17 @@ public class SaveManager
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(path, json);
 
-            Load();
+            TimeManager.instance.SetPlayTime(0);
+
+            currentData = data;
 
             Debug.Log("Sauvegarde " + saveName + " initialisée");
         }
     }
 
-    public static SaveData SaveInfo()
+    public static SaveData SlotInfo()
     {
-        string path = Application.persistentDataPath + "/save_subterra.json";
+        var path = paths[currentSlot];
 
         if (!File.Exists(path))
         {
@@ -61,6 +79,15 @@ public class SaveManager
 
         string json = File.ReadAllText(path);
         return JsonUtility.FromJson<SaveData>(json);
+    }
+
+    public static void SetSlot(int newSlot)
+    {
+        if (newSlot >= 0 && newSlot < 3)
+        {
+            currentSlot = newSlot;
+            Debug.Log("Changement de slot : " + newSlot);
+        }
     }
 }
 

@@ -24,8 +24,6 @@ public class SaveManager
 
         string json = JsonUtility.ToJson(currentData, true);
         File.WriteAllText(path, json);
-
-        Debug.Log("Sauvegarde effectuée en " + path);
     }
 
     public static bool Load()
@@ -34,7 +32,6 @@ public class SaveManager
 
         if (!File.Exists(path))
         {
-            Debug.LogWarning(path + ": aucune sauvegarde trouvée");
             return false;
         }
 
@@ -63,8 +60,6 @@ public class SaveManager
             TimeManager.instance.SetPlayTime(0);
 
             currentData = data;
-
-            Debug.Log("Sauvegarde " + saveName + " initialisée");
         }
     }
 
@@ -86,8 +81,25 @@ public class SaveManager
         if (newSlot >= 0 && newSlot < 3)
         {
             currentSlot = newSlot;
-            Debug.Log("Changement de slot : " + newSlot);
         }
+    }
+
+    public static bool DeleteSave(int slot)
+    {
+        if (slot < 0 || slot > 2)
+        {
+            return false;
+        }
+
+        string path = paths[slot];
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            return true;
+        }
+
+        return false;
     }
 }
 

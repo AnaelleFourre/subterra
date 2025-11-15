@@ -15,12 +15,39 @@ public class SaveManager
         }
     }
 
-    public static void Save(Vector3 position)
+    public static void InitSave(string saveName, Vector3 startPosition)
+    {
+        var path = paths[currentSlot];
+
+        if (!File.Exists(path))
+        {
+            SaveData data = new SaveData
+            {
+                saveName = saveName,
+                playerPosition = startPosition,
+                playTime = 0,
+                levelNumber = 1
+            };
+            data.saveName = saveName;
+            data.playerPosition = startPosition;
+            data.playTime = 0;
+
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(path, json);
+
+            TimeManager.instance.SetPlayTime(0);
+
+            currentData = data;
+        }
+    }
+
+    public static void Save(Vector3 position, int levelNumber)
     {
         var path = paths[currentSlot];
 
         currentData.playerPosition = position;
         currentData.playTime = TimeManager.instance.playTime;
+        currentData.levelNumber = levelNumber;
 
         string json = JsonUtility.ToJson(currentData, true);
         File.WriteAllText(path, json);
@@ -42,25 +69,22 @@ public class SaveManager
 
         return true;
     }
-
-    public static void InitSave(string saveName, Vector3 startPosition)
+    public static bool DeleteSave(int slot)
     {
-        var path = paths[currentSlot];
-
-        if (!File.Exists(path))
+        if (slot < 0 || slot > 2)
         {
-            SaveData data = new SaveData();
-            data.saveName = saveName;
-            data.playerPosition = startPosition;
-            data.playTime = 0;
-
-            string json = JsonUtility.ToJson(data, true);
-            File.WriteAllText(path, json);
-
-            TimeManager.instance.SetPlayTime(0);
-
-            currentData = data;
+            return false;
         }
+
+        string path = paths[slot];
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            return true;
+        }
+
+        return false;
     }
 
     public static SaveData SlotInfo()
@@ -82,24 +106,6 @@ public class SaveManager
         {
             currentSlot = newSlot;
         }
-    }
-
-    public static bool DeleteSave(int slot)
-    {
-        if (slot < 0 || slot > 2)
-        {
-            return false;
-        }
-
-        string path = paths[slot];
-
-        if (File.Exists(path))
-        {
-            File.Delete(path);
-            return true;
-        }
-
-        return false;
     }
 }
 

@@ -5,12 +5,15 @@ public class Checkpoint : MonoBehaviour
 {
     [Header("Checkpoint Settings")]
     [SerializeField] private int levelNumber;
+    [SerializeField] private bool isDefaultCheckpoint = false;
 
     [Header("Checkpoint Colors")]
     [SerializeField] private Material inactiveMaterial;
     [SerializeField] private Material activeMaterial;
 
     private Renderer rend;
+
+    public bool IsDefault => isDefaultCheckpoint;
 
     private void Awake()
     {

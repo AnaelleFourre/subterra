@@ -84,7 +84,8 @@ public class PlayerMovement : MonoBehaviour
         rigidBody.MovePosition(rigidBody.position + deltaPosition);
         cameraTarget.position = transform.position;
         // Rotate
-        var deltaRotation = Quaternion.FromToRotation(transform.forward, direction);
+        var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
+                                                            : Quaternion.FromToRotation(transform.forward, direction);
         rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
     }
 }

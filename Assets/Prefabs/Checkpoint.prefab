@@ -121,6 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68117a63305b1e044933d5730ea650ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 3
+  levelNumber: 0
+  isDefaultCheckpoint: 0
   inactiveMaterial: {fileID: 2100000, guid: 7c10367e64df79342960934d828275ed, type: 2}
   activeMaterial: {fileID: 2100000, guid: 3cdcc11bb86c1614fa8341cde88f6745, type: 2}

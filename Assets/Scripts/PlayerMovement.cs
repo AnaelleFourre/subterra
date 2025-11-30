@@ -1,15 +1,12 @@
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
-    [SerializeField] private float WalkSpeed = 3;
-    [SerializeField] private float JumpForce = 3;
+    [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float JumpForce = 5;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;

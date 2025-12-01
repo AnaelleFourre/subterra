@@ -56,6 +56,8 @@ public class PlayerMovement : MonoBehaviour
         {
             Walk();
         }
+        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
+        cameraTarget.position = transform.position;
     }
 
     private bool canJump()
@@ -82,7 +84,6 @@ public class PlayerMovement : MonoBehaviour
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
         rigidBody.MovePosition(rigidBody.position + deltaPosition);
-        cameraTarget.position = transform.position;
         // Rotate
         var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
                                                             : Quaternion.FromToRotation(transform.forward, direction);

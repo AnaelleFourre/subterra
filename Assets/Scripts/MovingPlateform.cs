@@ -7,6 +7,7 @@ public class MovingPlatform : MonoBehaviour
 
     private Vector3 pointA;
     private Vector3 target;
+    private Transform originalParent;
 
     void Start()
     {
@@ -14,12 +15,10 @@ public class MovingPlatform : MonoBehaviour
         target = pointA + pointB;
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        // Move platform
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.fixedDeltaTime);
 
-        // Switch direction when reaching target
         if (Vector3.Distance(transform.position, target) < 0.1f)
         {
             target = target == pointA ? pointA + pointB : pointA;
@@ -30,7 +29,19 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.transform.SetParent(transform);
+            PlayerMovement playerScript = other.GetComponent<PlayerMovement>();
+
+            if (playerScript != null)
+            {
+                if(playerScript.cameraTarget != null)
+                {
+                    originalParent = playerScript.cameraTarget.parent;
+                    playerScript.cameraTarget.SetParent(transform);
+                }
+                
+                playerScript.followPlayer = false;
+                playerScript.SetPlatform(transform);
+            }
         }
     }
 
@@ -38,7 +49,18 @@ public class MovingPlatform : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            other.transform.SetParent(null);
+            PlayerMovement playerScript = other.GetComponent<PlayerMovement>();
+
+            if (playerScript != null)
+            {
+                if(playerScript.cameraTarget != null)
+                {
+                    playerScript.cameraTarget.SetParent(originalParent);
+                }
+                
+                playerScript.followPlayer = true;
+                playerScript.SetPlatform(null);
+            }
         }
     }
 }

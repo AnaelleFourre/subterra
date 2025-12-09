@@ -7,13 +7,21 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
     [SerializeField] private float JumpForce = 5;
+
+    public bool followPlayer = true; 
+
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
     private Vector2 moveAmount;
     private Rigidbody rigidBody;
     private Transform feetTransform;
-    private Transform cameraTarget; // used rotate player model without moving camera
+
+    public Transform cameraTarget;
+    
+    // Platform tracking
+    private Transform currentPlatform;
+    private Vector3 lastPlatformPosition;
 
     private void OnEnable()
     {
@@ -32,7 +40,9 @@ public class PlayerMovement : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
+
         cameraTarget = transform.parent.GetChild(1);
+        
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
     }
@@ -52,12 +62,39 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        Vector3 totalMovement = Vector3.zero;
+        
+        // Move player with platform
+        if (currentPlatform != null)
+        {
+            Vector3 platformDelta = currentPlatform.position - lastPlatformPosition;
+            totalMovement += platformDelta;
+            lastPlatformPosition = currentPlatform.position;
+        }
+        
+        // Add player movement
         if (moveAmount != Vector2.zero)
         {
-            Walk();
+            var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
+            totalMovement += direction * WalkSpeed * Time.deltaTime;
+            
+            // Handle rotation
+            var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
+                                                                : Quaternion.FromToRotation(transform.forward, direction);
+            rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
         }
-        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
-        cameraTarget.position = transform.position;
+        
+        // Apply all movement at once
+        if (totalMovement != Vector3.zero)
+        {
+            rigidBody.MovePosition(rigidBody.position + totalMovement);
+        }
+        
+        // Update camera target to follow player position
+        if (followPlayer && cameraTarget != null)
+        {
+            cameraTarget.position = transform.position;
+        }
     }
 
     private bool canJump()
@@ -80,13 +117,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void Walk()
     {
-        // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
         rigidBody.MovePosition(rigidBody.position + deltaPosition);
-        // Rotate
+        
         var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
                                                             : Quaternion.FromToRotation(transform.forward, direction);
         rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+    }
+    
+    public void SetPlatform(Transform platform)
+    {
+        currentPlatform = platform;
+        if (platform != null)
+        {
+            lastPlatformPosition = platform.position;
+        }
     }
 }

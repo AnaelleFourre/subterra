@@ -6,13 +6,9 @@ public class GrapplingGun : MonoBehaviour
 {
     private LineRenderer lr;
     private Vector3 grapplePoint;
-    public LayerMask whatIsGrappleable;
     public Transform gunTip, player;
-    public Transform playerCamera;
-    public float ropeLength = 5f; // Longueur fixe de la corde
     private SpringJoint joint;
-    private float maxDistance = 50f;
-
+    public GrappleSelector selector;
     private InputAction grappleAction;   // nouvelle action
 
     void Awake()
@@ -43,50 +39,61 @@ public class GrapplingGun : MonoBehaviour
 
     void StartGrapple()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(playerCamera.position, playerCamera.forward, out hit, maxDistance, whatIsGrappleable))
+        if (selector == null)
         {
-            Vector3 direction = (hit.point - gunTip.position).normalized;
-            grapplePoint = gunTip.position + direction * ropeLength;
-
-            joint = player.gameObject.AddComponent<SpringJoint>();
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = grapplePoint;
-
-            float distanceFromPoint = Vector3.Distance(player.position, grapplePoint);
-            joint.maxDistance = distanceFromPoint * 0.8f;
-            joint.minDistance = distanceFromPoint * 0.25f;
-
-            joint.spring = 100f;
-            joint.damper = 0f;
-            joint.massScale = 1f;
-
-            lr.positionCount = 2;
+            Debug.LogError("Missing GrappleSelector reference");
+            return;
         }
+
+        Transform best = selector.GetSelectedTarget();
+        if (best == null)
+        {
+            Debug.Log("No selected grapple target");
+            return;
+        }
+
+        grapplePoint = best.position;
+
+        // Création du joint
+        joint = player.gameObject.AddComponent<SpringJoint>();
+        joint.autoConfigureConnectedAnchor = false;
+        joint.connectedAnchor = grapplePoint;
+
+        float dist = Vector3.Distance(player.position, grapplePoint);
+
+        joint.maxDistance = dist;
+        joint.minDistance = dist * 0.6f;
+        joint.spring = 2000f;
+        joint.damper = 30f;
+        joint.massScale = 4f;
+
+        lr.positionCount = 2;
+        lr.startColor = Color.red;
+        lr.endColor = Color.red;
     }
 
-    void DrawRope()
-    {
-        if (joint != null)
-        {
-            lr.SetPosition(0, gunTip.position);
-            lr.SetPosition(1, grapplePoint);
-        }
-        else
-        {
-            lr.SetPosition(0, gunTip.position);
-            lr.SetPosition(1, gunTip.position);
-        }
-    }
 
     void StopGrapple()
     {
         if (joint != null)
         {
             Destroy(joint);
+            joint = null;
         }
+
         grapplePoint = gunTip.position;
+        lr.positionCount = 0;
     }
+
+    void DrawRope()
+    {
+        if (joint == null)
+            return;
+
+        lr.SetPosition(0, gunTip.position);
+        lr.SetPosition(1, grapplePoint);
+    }
+
 
     public bool IsGrappling()
     {

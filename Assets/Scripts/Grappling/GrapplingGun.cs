@@ -10,9 +10,10 @@ public class GrapplingGun : MonoBehaviour
     private SpringJoint joint;
     public GrappleSelector selector;
     private InputAction grappleAction;   // nouvelle action
-
+    private bool isGrappling;
     void Awake()
     {
+        isGrappling = false;
         lr = GetComponent<LineRenderer>();
         grapplePoint = gunTip.position;
     }
@@ -21,8 +22,7 @@ public class GrapplingGun : MonoBehaviour
     {
         grappleAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/x");
 
-        grappleAction.performed += ctx => StartGrapple(); // équivalent de GetKeyDown
-        grappleAction.canceled  += ctx => StopGrapple();  // équivalent de GetKeyUp
+        grappleAction.performed += ctx => GrappleManager();
 
         grappleAction.Enable();
     }
@@ -36,7 +36,19 @@ public class GrapplingGun : MonoBehaviour
     {
         DrawRope();
     }
+    void GrappleManager()
+    {
+        isGrappling = !isGrappling;
+        if (isGrappling)
+        {
+            StartGrapple();
+        }
+        else
+        {
+            StopGrapple();
+        }
 
+    }
     void StartGrapple()
     {
         if (selector == null)

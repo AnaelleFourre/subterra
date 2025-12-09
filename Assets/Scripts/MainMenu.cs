@@ -11,8 +11,20 @@ public class MainMenu : MonoBehaviour
         // Prends la derniere sauvegarde
     }
 
-    public void Saves(){
-        // SceneManager.LoadScene("SavesScene"); // Va à la scene où sont les sauvegarde
+    /**
+    * number (int) : 0,1 ou 2 - Indique le numéro de la sauvegarde
+    */
+    public void Saves(int number){
+        SaveManager.currentSlot = number;
+        SaveData data = SaveManager.SlotInfo();
+        if (data == null){
+            return; // Si la sauvegarde est vide, on ne fait rien
+        }
+        SaveManager.Load();
+    }
+
+    public void Parameters(){
+        
     }
 
     public void QuitGame(){

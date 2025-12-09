@@ -111,7 +111,10 @@ public class GrappleSelector : MonoBehaviour
 
         bestTransformLastFrame = best;
     }
-
+    public Transform GetSelectedTarget()
+    {
+        return bestTransformLastFrame;
+    }
     // ---- helpers for OverlapSphereNonAlloc (stores colliders) ----
     private Collider[] colliderBuffer = new Collider[128];
     private Collider[] GetColliderBuffer()

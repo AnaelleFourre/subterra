@@ -1,21 +1,19 @@
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
-    [SerializeField] private float WalkSpeed = 3;
-    [SerializeField] private float JumpForce = 3;
+    [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float JumpForce = 5;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
     private Vector2 moveAmount;
     private Rigidbody rigidBody;
     private Transform feetTransform;
+    private Transform cameraTarget; // used rotate player model without moving camera
 
     private void OnEnable()
     {
@@ -34,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
+        cameraTarget = transform.parent.GetChild(1);
+        cameraTarget.position = transform.position;
+        cameraTarget.rotation = transform.rotation;
     }
 
     private void Update()
@@ -51,7 +52,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Walk();
+        if (moveAmount != Vector2.zero)
+        {
+            Walk();
+        }
+        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
+        cameraTarget.position = transform.position;
     }
 
     private bool canJump()
@@ -67,16 +73,20 @@ public class PlayerMovement : MonoBehaviour
     private void Turn()
     {
         var lookAmount = turnAction.ReadValue<Vector2>();
-        var rotationAmount = lookAmount.x * 90f;
-        var deltaRotation = Quaternion.Euler(0, rotationAmount, 0);
-        rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+        var angleDegrees = lookAmount.x * 90f;
+        cameraTarget.Rotate(0f, angleDegrees, 0f);
+        rigidBody.MoveRotation(cameraTarget.rotation);
     }
 
     private void Walk()
     {
-        var direction = moveAmount.y * transform.forward + moveAmount.x * transform.right;
-        var distance = WalkSpeed * Time.deltaTime;
-        var deltaPosition = direction.normalized * distance;
+        // Move
+        var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
+        var deltaPosition = direction * WalkSpeed * Time.deltaTime;
         rigidBody.MovePosition(rigidBody.position + deltaPosition);
+        // Rotate
+        var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
+                                                            : Quaternion.FromToRotation(transform.forward, direction);
+        rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
     }
 }

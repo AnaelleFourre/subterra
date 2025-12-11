@@ -17,11 +17,11 @@ public class CameraRelinker : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         var vcam = FindAnyObjectByType<CinemachineCamera>();
-        var player = GameObject.FindWithTag("Player");
-        if (vcam != null && player != null)
+        var target = GameObject.FindWithTag("CameraTarget");
+        if (vcam != null && target != null)
         {
-            vcam.Follow = player.transform;
-            vcam.LookAt = player.transform;
+            vcam.Follow = target.transform;
+            vcam.LookAt = target.transform;
         }
     }
 }

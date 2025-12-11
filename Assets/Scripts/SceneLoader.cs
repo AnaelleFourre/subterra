@@ -11,6 +11,19 @@ public class SceneLoader : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             SceneManager.LoadScene(sceneName);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        GameObject player = GameObject.FindWithTag("Player");
+
+        if (player != null && CheckpointManager.instance != null)
+        {
+            player.transform.position = CheckpointManager.instance.GetDefaultSpawn() + Vector3.up * 0.5f;
+        }
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -25,12 +26,21 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnEnable()
     {
-        InputActions.FindActionMap("Player").Enable();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        InputActions.FindActionMap("Player").Disable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var map = InputActions.FindActionMap("Player", true);
+        if (!map.enabled)
+        {
+            map.Enable();
+        }
     }
 
     private void Awake()

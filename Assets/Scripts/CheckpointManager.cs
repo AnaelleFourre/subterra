@@ -1,13 +1,14 @@
 using UnityEditor.Rendering.Universal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CheckpointManager : MonoBehaviour
 {
     public static CheckpointManager instance;
 
-    public Checkpoint currentCheckpoint;
+    [SerializeField] private Checkpoint currentCheckpoint;
 
-    private Checkpoint defaultCheckpoint;
+    [SerializeField] private Checkpoint defaultCheckpoint;
 
     private void Awake()
     {
@@ -15,6 +16,7 @@ public class CheckpointManager : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -23,6 +25,16 @@ public class CheckpointManager : MonoBehaviour
     }
 
     private void Start()
+    {
+        FindDefaultCheckpoint();
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         FindDefaultCheckpoint();
     }
@@ -61,6 +73,15 @@ public class CheckpointManager : MonoBehaviour
         if (currentCheckpoint != null)
         {
             return currentCheckpoint.GetSpawnPosition();
+        }
+        return Vector3.zero;
+    }
+
+    public Vector3 GetDefaultSpawn()
+    {
+        if (defaultCheckpoint != null)
+        {
+            return defaultCheckpoint.GetSpawnPosition();
         }
         return Vector3.zero;
     }

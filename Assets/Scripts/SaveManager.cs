@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class SaveManager
 {
@@ -15,7 +16,7 @@ public class SaveManager
         }
     }
 
-    public static void InitSave(string saveName, Vector3 startPosition)
+    public static void InitSave(string saveName, string startSceneName, Vector3 startPosition)
     {
         var path = paths[currentSlot];
 
@@ -26,7 +27,8 @@ public class SaveManager
                 saveName = saveName,
                 playerPosition = startPosition,
                 playTime = 0,
-                levelNumber = 1
+                levelNumber = 1,
+                sceneName = startSceneName
             };
             data.saveName = saveName;
             data.playerPosition = startPosition;
@@ -48,6 +50,7 @@ public class SaveManager
         currentData.playerPosition = position;
         currentData.playTime = TimeManager.instance.playTime;
         currentData.levelNumber = levelNumber;
+        currentData.sceneName = SceneManager.GetActiveScene().name;
 
         string json = JsonUtility.ToJson(currentData, true);
         File.WriteAllText(path, json);
@@ -67,8 +70,23 @@ public class SaveManager
 
         TimeManager.instance.SetPlayTime(currentData.playTime);
 
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.LoadScene(currentData.sceneName);
+
         return true;
     }
+
+    private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            player.transform.position = currentData.playerPosition;
+        }
+    }
+
     public static bool DeleteSave(int slot)
     {
         if (slot < 0 || slot > 2)

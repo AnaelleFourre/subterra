@@ -12,18 +12,16 @@ public class Rope : MonoBehaviour
 
     [Header("Verlet Parameters")]
 
-    [SerializeField, Tooltip("The distance between each link in the chain")] float nodeDistance = 0.35f;
+    [SerializeField, Tooltip("The distance between each link in the chain")] float nodeDistance = 0.1f;
     [SerializeField, Tooltip("The radius of the sphere collider used for each chain link")] float nodeColliderRadius = 0.2f;
 
     [SerializeField, Tooltip("Works best with a lower value")] float gravityStrength = 2;
 
-    [SerializeField, Tooltip("The number of chain links. Decreases performance with high values and high iteration")] int totalNodes = 100;
+    [SerializeField, Range(0, 1), Tooltip("Modifier to dampen velocity so the simulation can stabilize")] float velocityDampen = 0.1f;
 
-    [SerializeField, Range(0, 1), Tooltip("Modifier to dampen velocity so the simulation can stabilize")] float velocityDampen = 0.95f;
+    [SerializeField, Range(0, 0.99f), Tooltip("The stiffness of the simulation. Set to lower values for more elasticity")] float stiffness = 0.95f;
 
-    [SerializeField, Range(0, 0.99f), Tooltip("The stiffness of the simulation. Set to lower values for more elasticity")] float stiffness = 0.8f;
-
-    [SerializeField, Tooltip("Setting this will test collisions for every n iterations. Possibly more performance but less stable collisions")] int iterateCollisionsEvery = 1;
+    [SerializeField, Tooltip("Setting this will test collisions for every n iterations. Possibly more performance but less stable collisions")] int iterateCollisionsEvery = 10;
 
     [SerializeField, Tooltip("Iterations for the simulation. More iterations is more expensive but more stable")] int iterations = 100;
 
@@ -40,6 +38,8 @@ public class Rope : MonoBehaviour
     Vector3 ropeStart;
     Vector3 ropeEnd;
     Transform gunTip;
+
+    int totalNodes = 100;
 
     [Space]
 
@@ -116,6 +116,30 @@ public class Rope : MonoBehaviour
 
     }
 
+    public float getRopeLength()
+    {
+
+        return totalNodes * nodeDistance;
+    }
+
+    public bool isRopeTaut()
+    {
+        float currentDist = Vector3.Distance(ropeStart, ropeEnd);
+        float ropeLength = getRopeLength();
+        if (currentDist >= ropeLength * 0.98f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Vector3 getGrapplePoint()
+    {
+        return ropeEnd;
+    }
 
     void Update()
     {

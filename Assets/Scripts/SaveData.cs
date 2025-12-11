@@ -7,4 +7,5 @@ public class SaveData
     public Vector3 playerPosition;
     public float playTime;
     public int levelNumber;
+    public string sceneName;
 }

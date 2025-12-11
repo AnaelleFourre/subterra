@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.IO;
 
 public class SaveTester : MonoBehaviour
 {
+    private int curSlot = 0;
     // Save files in \Users\<User>\AppData\LocalLow\DefaultCompany\Subterra\ + save_0.json / save_1.json / save_2.json
     void Update()
     {
@@ -10,18 +12,21 @@ public class SaveTester : MonoBehaviour
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
             SaveManager.SetSlot(0);
+            curSlot = 0;
             Debug.Log("→ Slot 0");
         }
 
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
             SaveManager.SetSlot(1);
+            curSlot = 1;
             Debug.Log("→ Slot 1");
         }
 
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
             SaveManager.SetSlot(2);
+            curSlot = 2;
             Debug.Log("→ Slot 2");
         }
 
@@ -29,13 +34,19 @@ public class SaveTester : MonoBehaviour
         if (Keyboard.current.iKey.wasPressedThisFrame)
         {
             if (GameObject.FindWithTag("Player") == null) Debug.Log("Plyer null");
-            SaveManager.InitSave("TestSave", GameObject.FindWithTag("Player").transform.position);
+            SaveManager.InitSave("TestSave", "SampleScene", GameObject.FindWithTag("Player").transform.position);
             Debug.Log("→ Init du slot");
         }
 
         // Save -> o
         if (Keyboard.current.oKey.wasPressedThisFrame)
         {
+            if (!File.Exists(Application.persistentDataPath + $"/save_{curSlot}.json"))
+            {
+                SaveManager.InitSave("TestSave", "SampleScene", GameObject.FindWithTag("Player").transform.position);
+                Debug.Log("→ Init du slot");
+            }
+
             SaveManager.Save(GameObject.FindWithTag("Player").transform.position, 2);
             Debug.Log("→ Sauvegarde : " + GameObject.FindWithTag("Player").transform.position);
         }
@@ -57,7 +68,7 @@ public class SaveTester : MonoBehaviour
             if (info == null)
                 Debug.Log("→ Slot vide");
             else
-                Debug.Log($"→ Info : {info.saveName}, {info.playTime}, {info.playerPosition}, {info.levelNumber}");
+                Debug.Log($"→ Info : {info.saveName}, {info.sceneName}, {info.playTime}, {info.playerPosition}, {info.levelNumber}");
         }
 
         // Delete -> y

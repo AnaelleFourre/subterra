@@ -197,6 +197,7 @@ GameObject:
   - component: {fileID: 311268180}
   - component: {fileID: 311268179}
   - component: {fileID: 311268181}
+  - component: {fileID: 311268182}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -245,6 +246,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentCheckpoint: {fileID: 0}
+  defaultCheckpoint: {fileID: 0}
+--- !u!114 &311268182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311268178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c7eed71976b0874fa59d7da0ba74a38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,7 +1207,6 @@ GameObject:
   - component: {fileID: 714026218}
   - component: {fileID: 714026217}
   - component: {fileID: 714026221}
-  - component: {fileID: 714026224}
   - component: {fileID: 714026225}
   - component: {fileID: 714026226}
   - component: {fileID: 714026227}
@@ -1326,21 +1339,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!114 &714026224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 714026216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
 --- !u!114 &714026225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1439,6 +1437,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   deathTresholdY: -10
+--- !u!114 &714026228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 714026216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cac42694508bb59458dbddb82cc00055, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &775880883
 GameObject:
   m_ObjectHideFlags: 0

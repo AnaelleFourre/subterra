@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -7,30 +8,32 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
     [SerializeField] private float JumpForce = 5;
-
-    public bool followPlayer = true; 
-
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
     private Vector2 moveAmount;
     private Rigidbody rigidBody;
     private Transform feetTransform;
-
-    public Transform cameraTarget;
-    
-    // Platform tracking
-    private Transform currentPlatform;
-    private Vector3 lastPlatformPosition;
+    private Transform cameraTarget; // used rotate player model without moving camera
+    private Rope rope;
 
     private void OnEnable()
     {
-        InputActions.FindActionMap("Player").Enable();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        InputActions.FindActionMap("Player").Disable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var map = InputActions.FindActionMap("Player", true);
+        if (!map.enabled)
+        {
+            map.Enable();
+        }
     }
 
     private void Awake()
@@ -40,11 +43,10 @@ public class PlayerMovement : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
-
         cameraTarget = transform.parent.GetChild(1);
-        
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
+        rope = GetComponentInChildren<Rope>();
     }
 
     private void Update()
@@ -62,39 +64,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Vector3 totalMovement = Vector3.zero;
-        
-        // Move player with platform
-        if (currentPlatform != null)
-        {
-            Vector3 platformDelta = currentPlatform.position - lastPlatformPosition;
-            totalMovement += platformDelta;
-            lastPlatformPosition = currentPlatform.position;
-        }
-        
-        // Add player movement
+        if (rope.enabled)
+            EnforceRopeConstraint();
+
         if (moveAmount != Vector2.zero)
         {
-            var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-            totalMovement += direction * WalkSpeed * Time.deltaTime;
-            
-            // Handle rotation
-            var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-                                                                : Quaternion.FromToRotation(transform.forward, direction);
-            rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+            Walk();
         }
-        
-        // Apply all movement at once
-        if (totalMovement != Vector3.zero)
-        {
-            rigidBody.MovePosition(rigidBody.position + totalMovement);
-        }
-        
-        // Update camera target to follow player position
-        if (followPlayer && cameraTarget != null)
-        {
-            cameraTarget.position = transform.position;
-        }
+        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
+        cameraTarget.position = transform.position;
     }
 
     private bool canJump()
@@ -117,21 +95,34 @@ public class PlayerMovement : MonoBehaviour
 
     private void Walk()
     {
+        // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
-        rigidBody.MovePosition(rigidBody.position + deltaPosition);
-        
+            rigidBody.MovePosition(rigidBody.position + deltaPosition);
+        // Rotate
         var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
                                                             : Quaternion.FromToRotation(transform.forward, direction);
         rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
     }
     
-    public void SetPlatform(Transform platform)
+    private void EnforceRopeConstraint()
     {
-        currentPlatform = platform;
-        if (platform != null)
+        Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
+        float dist = fromAnchor.magnitude;
+        float maxLength = rope.getRopeLength();
+
+        if (dist > maxLength)
         {
-            lastPlatformPosition = platform.position;
+            rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
+
+            Vector3 v = rigidBody.linearVelocity;
+            float outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
+
+            if (outwardSpeed > 0f)
+            {
+                rigidBody.linearVelocity = v - fromAnchor.normalized * outwardSpeed;
+            }
         }
     }
+
 }

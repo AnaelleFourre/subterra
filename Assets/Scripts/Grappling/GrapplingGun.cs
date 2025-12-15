@@ -4,18 +4,17 @@ using UnityEngine.Rendering;
 
 public class GrapplingGun : MonoBehaviour
 {
-    private LineRenderer lr;
     private Vector3 grapplePoint;
     public Transform gunTip, player;
-    private SpringJoint joint;
     public GrappleSelector selector;
     private InputAction grappleAction;   // nouvelle action
     private bool isGrappling;
+    public Rope rope;
     void Awake()
     {
         isGrappling = false;
-        lr = GetComponent<LineRenderer>();
         grapplePoint = gunTip.position;
+   
     }
 
     private void OnEnable()
@@ -32,10 +31,6 @@ public class GrapplingGun : MonoBehaviour
         grappleAction.Disable();
     }
 
-    void LateUpdate()
-    {
-        DrawRope();
-    }
     void GrappleManager()
     {
         isGrappling = !isGrappling;
@@ -65,44 +60,18 @@ public class GrapplingGun : MonoBehaviour
         }
 
         grapplePoint = best.position;
+        rope.initRope(gunTip, grapplePoint);
+        rope.enabled = true;
 
-        // Création du joint
-        joint = player.gameObject.AddComponent<SpringJoint>();
-        joint.autoConfigureConnectedAnchor = false;
-        joint.connectedAnchor = grapplePoint;
 
-        float dist = Vector3.Distance(player.position, grapplePoint);
-
-        joint.maxDistance = dist;
-        joint.minDistance = dist * 0.6f;
-        joint.spring = 2000f;
-        joint.damper = 30f;
-        joint.massScale = 4f;
-
-        lr.positionCount = 2;
     }
 
 
     void StopGrapple()
     {
-        if (joint != null)
-        {
-            Destroy(joint);
-            joint = null;
-        }
 
         grapplePoint = gunTip.position;
-        lr.positionCount = 0;
+        rope.enabled = false;
     }
 
-    void DrawRope()
-    {
-        if (joint == null)
-            return;
-
-        lr.SetPosition(0, gunTip.position);
-        lr.SetPosition(1, grapplePoint);
-        lr.startColor = Color.yellow;
-        lr.endColor = Color.yellow;
-    }
 }

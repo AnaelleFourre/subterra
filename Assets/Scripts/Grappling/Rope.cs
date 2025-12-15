@@ -1,5 +1,8 @@
 using System.Net;
+using NUnit.Framework.Constraints;
 using UnityEngine;
+
+using System;
 
 [RequireComponent(typeof(LineRenderer))]
 public class Rope : MonoBehaviour
@@ -12,18 +15,16 @@ public class Rope : MonoBehaviour
 
     [Header("Verlet Parameters")]
 
-    [SerializeField, Tooltip("The distance between each link in the chain")] float nodeDistance = 0.35f;
+    [SerializeField, Tooltip("The distance between each link in the chain")] float nodeDistance = 0.1f;
     [SerializeField, Tooltip("The radius of the sphere collider used for each chain link")] float nodeColliderRadius = 0.2f;
 
     [SerializeField, Tooltip("Works best with a lower value")] float gravityStrength = 2;
 
-    [SerializeField, Tooltip("The number of chain links. Decreases performance with high values and high iteration")] int totalNodes = 100;
+    [SerializeField, Range(0, 1), Tooltip("Modifier to dampen velocity so the simulation can stabilize")] float velocityDampen = 0.1f;
 
-    [SerializeField, Range(0, 1), Tooltip("Modifier to dampen velocity so the simulation can stabilize")] float velocityDampen = 0.95f;
+    [SerializeField, Range(0, 0.99f), Tooltip("The stiffness of the simulation. Set to lower values for more elasticity")] float stiffness = 0.95f;
 
-    [SerializeField, Range(0, 0.99f), Tooltip("The stiffness of the simulation. Set to lower values for more elasticity")] float stiffness = 0.8f;
-
-    [SerializeField, Tooltip("Setting this will test collisions for every n iterations. Possibly more performance but less stable collisions")] int iterateCollisionsEvery = 1;
+    [SerializeField, Tooltip("Setting this will test collisions for every n iterations. Possibly more performance but less stable collisions")] int iterateCollisionsEvery = 10;
 
     [SerializeField, Tooltip("Iterations for the simulation. More iterations is more expensive but more stable")] int iterations = 100;
 
@@ -41,6 +42,8 @@ public class Rope : MonoBehaviour
     Vector3 ropeEnd;
     Transform gunTip;
 
+    public int totalNodes = 100;
+
     [Space]
 
     // For Debug Drawing the chain/rope
@@ -52,7 +55,7 @@ public class Rope : MonoBehaviour
 
     Vector3[] previousNodePositions;
 
-    Vector3[] currentNodePositions;
+    public Vector3[] currentNodePositions;
     Quaternion[] currentNodeRotations;
 
     SphereCollider nodeCollider;
@@ -64,9 +67,6 @@ public class Rope : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
         enabled = false;
 
-        currentNodePositions = new Vector3[totalNodes];
-        previousNodePositions = new Vector3[totalNodes];
-        currentNodeRotations = new Quaternion[totalNodes];
 
         raycastHitBuffer = new RaycastHit[colliderBufferSize];
         colliderHitBuffer = new Collider[colliderBufferSize];
@@ -93,7 +93,10 @@ public class Rope : MonoBehaviour
         float dist = Vector3.Distance(ropeStart, ropeEnd);
         totalNodes = Mathf.CeilToInt(dist / nodeDistance);
 
-
+        currentNodePositions = new Vector3[totalNodes];
+        previousNodePositions = new Vector3[totalNodes];
+        currentNodeRotations = new Quaternion[totalNodes];
+        
         matrices = new Matrix4x4[totalNodes];
 
         Vector3 startPosition = Vector3.zero;
@@ -116,13 +119,37 @@ public class Rope : MonoBehaviour
 
     }
 
+    public float getRopeLength()
+    {
+        return totalNodes * nodeDistance;
+    }
+
+    public bool isRopeTaut()
+    {
+        float currentDist = Vector3.Distance(ropeStart, ropeEnd);
+        float ropeLength = getRopeLength();
+        if (currentDist >= ropeLength * 0.98f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Vector3 getGrapplePoint()
+    {
+        return ropeEnd;
+    }
 
     void Update()
     {
         if (isActiveAndEnabled == false) return;
 
         ropeStart = gunTip.position;
-
+        currentNodePositions[0] = ropeStart;
+        
         DrawRope();
 
         // Instanced drawing here is really performant over using GameObjects
@@ -295,5 +322,28 @@ public class Rope : MonoBehaviour
         lineRenderer.SetPositions(linePositions);
  
     }
+    public void RemoveFirstNode()
+    {
+        if (totalNodes < 2)
+        {
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < totalNodes - 1; i++)
+            {
+                currentNodePositions[i] = currentNodePositions[i + 1];
+                previousNodePositions[i] = previousNodePositions[i + 1];
+                currentNodeRotations[i] = currentNodeRotations[i + 1];
+            }
 
+            // Redimensionner les tableaux
+            totalNodes--;
+            Array.Resize(ref currentNodePositions, totalNodes);
+            Array.Resize(ref previousNodePositions, totalNodes);
+            Array.Resize(ref currentNodeRotations, totalNodes);
+            Array.Resize(ref matrices, totalNodes);
+            Array.Resize(ref linePositions, totalNodes);
+        }
+    }
 }

@@ -8,9 +8,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
     [SerializeField] private float JumpForce = 5;
-
-    public bool followPlayer = true; 
-
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
@@ -46,9 +43,7 @@ public class PlayerMovement : MonoBehaviour
         jumpAction = InputSystem.actions.FindAction("Jump");
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
-
         cameraTarget = transform.parent.GetChild(1);
-        
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
         rope = GetComponentInChildren<Rope>();
@@ -74,26 +69,10 @@ public class PlayerMovement : MonoBehaviour
 
         if (moveAmount != Vector2.zero)
         {
-            var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-            totalMovement += direction * WalkSpeed * Time.deltaTime;
-            
-            // Handle rotation
-            var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-                                                                : Quaternion.FromToRotation(transform.forward, direction);
-            rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+            Walk();
         }
-        
-        // Apply all movement at once
-        if (totalMovement != Vector3.zero)
-        {
-            rigidBody.MovePosition(rigidBody.position + totalMovement);
-        }
-        
-        // Update camera target to follow player position
-        if (followPlayer && cameraTarget != null)
-        {
-            cameraTarget.position = transform.position;
-        }
+        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
+        cameraTarget.position = transform.position;
     }
 
     private bool canJump()
@@ -116,6 +95,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Walk()
     {
+        // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
             rigidBody.MovePosition(rigidBody.position + deltaPosition);

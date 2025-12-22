@@ -8,19 +8,24 @@ public class MovingPlatform : MonoBehaviour
     private Vector3 pointA;
     private Vector3 target;
 
+    private Rigidbody rb; // Added Rigidbody reference
+
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         pointA = transform.position;
         target = pointA + pointB;
     }
 
     void FixedUpdate()
     {
-        transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.fixedDeltaTime);
+        Vector3 newPos = Vector3.MoveTowards(rb.position, target, speed * Time.fixedDeltaTime);
+        
+        rb.MovePosition(newPos);
 
-        if (Vector3.Distance(transform.position, target) < 0.1f)
+        if (Vector3.Distance(rb.position, target) < 0.1f)
         {
-            target = target == pointA ? pointA + pointB : pointA;
+            target = target == pointA ? pointA + pointB : pointA; //
         }
     }
 }

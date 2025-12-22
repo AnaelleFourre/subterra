@@ -93,7 +93,9 @@ public class Rope : MonoBehaviour
         float dist = Vector3.Distance(ropeStart, ropeEnd);
         totalNodes = Mathf.CeilToInt(dist / nodeDistance);
 
-
+        currentNodePositions = new Vector3[totalNodes];
+        previousNodePositions = new Vector3[totalNodes];
+        currentNodeRotations = new Quaternion[totalNodes];
         matrices = new Matrix4x4[totalNodes];
 
         Vector3 startPosition = Vector3.zero;

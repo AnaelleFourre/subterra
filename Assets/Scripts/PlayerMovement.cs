@@ -16,6 +16,7 @@ public class PlayerMovement : MonoBehaviour
     private Transform feetTransform;
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
+    private Vector3 currentVelocity;
 
     private void OnEnable()
     {
@@ -67,10 +68,11 @@ public class PlayerMovement : MonoBehaviour
         if (rope.enabled)
             EnforceRopeConstraint();
 
-        if (moveAmount != Vector2.zero)
-        {
-            Walk();
-        }
+        // if (moveAmount != Vector2.zero)
+        // {
+        //     Walk();
+        // }
+        Walk();
         // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
         cameraTarget.position = transform.position;
     }
@@ -93,16 +95,46 @@ public class PlayerMovement : MonoBehaviour
         rigidBody.MoveRotation(cameraTarget.rotation);
     }
 
+    // private void Walk()
+    // {
+    //     // Move
+    //     var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
+    //     var deltaPosition = direction * WalkSpeed * Time.deltaTime;
+    //         rigidBody.MovePosition(rigidBody.position + deltaPosition);
+    //     // Rotate
+    //     var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
+    //                                                         : Quaternion.FromToRotation(transform.forward, direction);
+    //     rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+    // }
+
     private void Walk()
     {
-        // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        var deltaPosition = direction * WalkSpeed * Time.deltaTime;
-            rigidBody.MovePosition(rigidBody.position + deltaPosition);
-        // Rotate
-        var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-                                                            : Quaternion.FromToRotation(transform.forward, direction);
-        rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+        var targetVelocity = direction * WalkSpeed;
+        float gripSpeed = 50f;
+        
+        if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
+        {
+            foreach (var hit in hits)
+            {
+                if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
+                {
+                    gripSpeed = icyFloor.Grip;
+                    break;
+                }
+            }
+        }
+        currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, gripSpeed * Time.fixedDeltaTime);
+        if (currentVelocity.magnitude > 0.01f)
+        {
+            rigidBody.MovePosition(rigidBody.position + currentVelocity * Time.deltaTime);
+            if (direction != Vector3.zero)
+            {
+                var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
+                                                                    : Quaternion.FromToRotation(transform.forward, direction);
+                rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
+            }
+        }
     }
     
     private void EnforceRopeConstraint()

@@ -10,9 +10,12 @@ public class SaveText : MonoBehaviour
     public TextMeshProUGUI texteUI;
     public int number; // Le numéro de la sauvegarde
 
+    /**
+    * Récupère le bon texte à afficher dans le slot de sauvegarde sur le menu.
+    */
     void Start()
     {
-        SaveManager.currentSlot = number;
+        SaveManager.SetSlot(number);
         SaveData data = SaveManager.SlotInfo();
         string texte;
         if (data == null){

@@ -12,6 +12,9 @@ public class PauseMenu : MonoBehaviour
 
     public GameObject conteneur;
 
+    /**
+    * Si la touche ESC est appuyé, met en pause et affiche le menu
+    */
     void Update()
     {
         var keyboard = Keyboard.current;
@@ -21,11 +24,17 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+    /**
+    * Retire le menu et relance le jeu
+    */ 
     public void Continuer(){
         conteneur.SetActive(false);
         Time.timeScale = 1;
     }
 
+    /**
+    * Renvoie au menu principal
+    */
     public void MenuPrincipal(){
         SceneManager.LoadScene("MainMenu");
     }

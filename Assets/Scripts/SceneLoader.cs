@@ -5,14 +5,17 @@ using UnityEngine.InputSystem;
 public class SceneLoader : MonoBehaviour
 {
     [SerializeField] private string sceneName;
+    [SerializeField] private DoorManager linkedDoor;
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player") || linkedDoor != null && !linkedDoor.isOpen)
         {
-            SceneManager.LoadScene(sceneName);
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            return;
         }
+
+        SceneManager.LoadScene(sceneName);
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

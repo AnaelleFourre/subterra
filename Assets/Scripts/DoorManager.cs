@@ -6,7 +6,7 @@ public class DoorManager : MonoBehaviour
     public float openAngle = -90f;
     public float duration = 2f;
 
-    bool isOpen = false;
+    public bool isOpen = false;
     bool isAnimating = false;
     float timer = 0f;
 

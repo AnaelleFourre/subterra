@@ -64,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rope.enabled)
+        if (rope != null && rope.enabled)
             EnforceRopeConstraint();
 
         if (moveAmount != Vector2.zero)
@@ -98,13 +98,13 @@ public class PlayerMovement : MonoBehaviour
         // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
-            rigidBody.MovePosition(rigidBody.position + deltaPosition);
+        rigidBody.MovePosition(rigidBody.position + deltaPosition);
         // Rotate
         var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
                                                             : Quaternion.FromToRotation(transform.forward, direction);
         rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
     }
-    
+
     private void EnforceRopeConstraint()
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();

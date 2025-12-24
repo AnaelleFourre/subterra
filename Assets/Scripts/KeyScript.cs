@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class KeyScript : MonoBehaviour
 {
-    public DoorManager door;
+    [SerializeField] private DoorManager door;
 
     private void OnTriggerEnter(Collider other)
     {

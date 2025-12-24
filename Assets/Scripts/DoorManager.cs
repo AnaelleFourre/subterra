@@ -2,20 +2,18 @@ using UnityEngine;
 
 public class DoorManager : MonoBehaviour
 {
-    public Transform doorPivot;
-    public float openAngle = -90f;
-    public float duration = 2f;
+    private float openAngle = -90f;
+    private float duration = 2f;
 
     public bool isOpen = false;
-    bool isAnimating = false;
-    float timer = 0f;
+    private bool isAnimating = false;
+    private float timer = 0f;
 
     Quaternion closedRotation;
     Quaternion openRotation;
     void Start()
     {
-        doorPivot = transform;
-        closedRotation = doorPivot.localRotation;
+        closedRotation = transform.localRotation;
         openRotation = Quaternion.Euler(0f, openAngle, 0f);
     }
 

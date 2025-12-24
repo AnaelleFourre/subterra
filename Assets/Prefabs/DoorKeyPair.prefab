@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8254919004658225686}
-  - component: {fileID: 5072352318320604049}
   m_Layer: 0
   m_Name: DoorRoot
   m_TagString: Untagged
@@ -34,28 +33,6 @@ Transform:
   - {fileID: 6655667393415874848}
   m_Father: {fileID: 1919729917270159454}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &5072352318320604049
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 949182368442360235}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 8be04ce82e9e9b943ac3b4fad07746ed, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1571477790933460212
 GameObject:
   m_ObjectHideFlags: 0
@@ -102,10 +79,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfd6316a2465f1244ba633b91bed69a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorPivot: {fileID: 0}
-  openAngle: -90
-  duration: 2
   isOpen: 0
+  doorCamera: {fileID: 0}
+  cameraTarget: {fileID: 628843499403810742}
 --- !u!1 &1584108013454919086
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,6 +114,7 @@ Transform:
   - {fileID: 8254919004658225686}
   - {fileID: 5148578030865303237}
   - {fileID: 3850243025567470356}
+  - {fileID: 628843499403810742}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2327741100960418237
@@ -729,6 +706,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &6780883893117539070
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 628843499403810742}
+  m_Layer: 0
+  m_Name: DoorCameraTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &628843499403810742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6780883893117539070}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.56028384, y: 1.3517442, z: -2.6810427}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1919729917270159454}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8585855089337190878
 GameObject:
   m_ObjectHideFlags: 0

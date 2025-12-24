@@ -4,24 +4,28 @@ using Unity.Cinemachine;
 
 public class CameraRelinker : MonoBehaviour
 {
-    private void OnEnable()
+    void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void OnDisable()
+    void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        var vcam = FindAnyObjectByType<CinemachineCamera>();
         var target = GameObject.FindWithTag("CameraTarget");
-        if (vcam != null && target != null)
+        var cams = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);
+        foreach (var cam in cams)
         {
-            vcam.Follow = target.transform;
-            vcam.LookAt = target.transform;
+            if (cam.name == "CinemachineCamera")
+            {
+                cam.Follow = target.transform;
+                cam.LookAt = target.transform;
+                break;
+            }
         }
     }
 }

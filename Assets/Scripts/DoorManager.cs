@@ -3,19 +3,19 @@ using Unity.Cinemachine;
 
 public class DoorManager : MonoBehaviour
 {
+    [SerializeField] private CinemachineCamera doorCamera;
+    [SerializeField] private Transform cameraTarget;
+    int defaultCameraPriority;
+
     public bool isOpen = false;
     float openAngle = -90f;
     float duration = 2f;
     bool isAnimating = false;
     float timer = 0f;
-
-    [SerializeField] private CinemachineCamera doorCamera;
-    [SerializeField] private Transform cameraTarget;
-    PlayerMovement playerControls;
-    private int defaultCameraPriority;
-
     Quaternion closedRotation;
     Quaternion openRotation;
+    PlayerMovement playerControls;
+
     void Start()
     {
         closedRotation = transform.localRotation;

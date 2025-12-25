@@ -7,12 +7,21 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private string sceneName;
     [SerializeField] private DoorManager linkedDoor;
 
+    TeleportTrigger trigger;
+
+    void Start()
+    {
+        trigger = GetComponentInChildren<TeleportTrigger>();
+    }
+
     void OnTriggerEnter(Collider other)
     {
-        if (!other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
+        if (trigger != null || !other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
         {
             return;
         }
+
+        Debug.Log("NO");
 
         StartTeleport();
     }

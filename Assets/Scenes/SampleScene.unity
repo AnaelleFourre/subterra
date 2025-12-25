@@ -745,6 +745,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1921203216}
+    - target: {fileID: 122232375846916072, guid: a9355a86fa76b344fbdf7676c5a8b2a6, type: 3}
+      propertyPath: m_VersionIndex
+      value: 7716
+      objectReference: {fileID: 0}
     - target: {fileID: 2323292211688881962, guid: a9355a86fa76b344fbdf7676c5a8b2a6, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -2025,7 +2029,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvasGroup: {fileID: 1772259766}
-  fadeDuration: 0.5
+  fadeDuration: 0.25
   vcam: {fileID: 595630124}
 --- !u!114 &1149152851
 MonoBehaviour:

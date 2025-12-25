@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
 
 public class SceneLoader : MonoBehaviour
 {
@@ -8,26 +7,32 @@ public class SceneLoader : MonoBehaviour
     [SerializeField] private DoorManager linkedDoor;
 
     TeleportTrigger trigger;
+    bool isTeleporting;
 
     void Start()
     {
         trigger = GetComponentInChildren<TeleportTrigger>();
+        isTeleporting = false;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (trigger != null || !other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
+        if (isTeleporting || trigger != null || !other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
         {
             return;
         }
-
-        Debug.Log("NO");
 
         StartTeleport();
     }
 
     public void StartTeleport()
     {
+        if (isTeleporting)
+        {
+            return;
+        }
+
+        isTeleporting = true;
         FadeTransition();
     }
 
@@ -50,6 +55,7 @@ public class SceneLoader : MonoBehaviour
         }
 
         await ScreenFader.Instance.FadeIn();
+        isTeleporting = false;
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)

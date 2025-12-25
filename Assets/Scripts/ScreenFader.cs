@@ -9,7 +9,7 @@ public class ScreenFader : MonoBehaviour
     public static ScreenFader Instance;
 
     [SerializeField] CanvasGroup canvasGroup;
-    [SerializeField] float fadeDuration = 0.5f;
+    [SerializeField] float fadeDuration = 0.25f;
     [SerializeField] CinemachineCamera vcam;
 
     void Awake()

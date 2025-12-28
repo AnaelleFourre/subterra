@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -14,15 +15,25 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rigidBody;
     private Transform feetTransform;
     private Transform cameraTarget; // used rotate player model without moving camera
+    private Rope rope;
 
     private void OnEnable()
     {
-        InputActions.FindActionMap("Player").Enable();
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        InputActions.FindActionMap("Player").Disable();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        var map = InputActions.FindActionMap("Player", true);
+        if (!map.enabled)
+        {
+            map.Enable();
+        }
     }
 
     private void Awake()
@@ -35,6 +46,7 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget = transform.parent.GetChild(1);
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
+        rope = GetComponentInChildren<Rope>();
     }
 
     private void Update()
@@ -52,6 +64,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (rope.enabled)
+            EnforceRopeConstraint();
+
         if (moveAmount != Vector2.zero)
         {
             Walk();
@@ -83,10 +98,31 @@ public class PlayerMovement : MonoBehaviour
         // Move
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var deltaPosition = direction * WalkSpeed * Time.deltaTime;
-        rigidBody.MovePosition(rigidBody.position + deltaPosition);
+            rigidBody.MovePosition(rigidBody.position + deltaPosition);
         // Rotate
         var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
                                                             : Quaternion.FromToRotation(transform.forward, direction);
         rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
     }
+    
+    private void EnforceRopeConstraint()
+    {
+        Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
+        float dist = fromAnchor.magnitude;
+        float maxLength = rope.getRopeLength();
+
+        if (dist > maxLength)
+        {
+            rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
+
+            Vector3 v = rigidBody.linearVelocity;
+            float outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
+
+            if (outwardSpeed > 0f)
+            {
+                rigidBody.linearVelocity = v - fromAnchor.normalized * outwardSpeed;
+            }
+        }
+    }
+
 }

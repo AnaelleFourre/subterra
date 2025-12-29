@@ -4,9 +4,9 @@ using TMPro;
 
 public class Timer : MonoBehaviour
 {
-    public float startTime = 30f;
+    [SerializeField] private float startTime = 30f;
+    [SerializeField] private TextMeshProUGUI timerText;
     private float timeRemaining;
-    public TextMeshProUGUI timerText;
 
     void Start()
     {
@@ -38,14 +38,11 @@ public class Timer : MonoBehaviour
 
     void RestartGame()
     {
-        Debug.Log("Time Is Done ");
-
-        PlayerRespawn player = FindObjectOfType<PlayerRespawn>();
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            player.RestartPlayer();
+            RespawnManager.RespawnStart(player);
         }
-
 
         timeRemaining = startTime;
     }

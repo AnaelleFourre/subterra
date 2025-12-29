@@ -6,6 +6,18 @@ public static class RespawnManager
     {
         Vector3 respawnPosition = CheckpointManager.instance.GetRespawnPosition();
 
+        RespawnAt(player, respawnPosition);
+    }
+
+    public static void RespawnStart(GameObject player)
+    {
+        Vector3 respawnPosition = CheckpointManager.instance.GetDefaultSpawn();
+
+        RespawnAt(player, respawnPosition);
+    }
+
+    private static void RespawnAt(GameObject player, Vector3 respawnPosition)
+    {
         if (respawnPosition == Vector3.zero)
         {
             return;
@@ -18,7 +30,5 @@ public static class RespawnManager
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
-
-        Debug.Log("Mort → Respawn au dernier checkpoint actif (sans sauvegarde)");
     }
 }

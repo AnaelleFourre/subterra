@@ -16978,7 +16978,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84797e03c05fa7e80b0ad508c6b49b48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointB: {x: 10, y: 0, z: 0}
+  pointB: {x: 10, y: 0, z: 10}
   speed: 2
 --- !u!65 &508990586
 BoxCollider:
@@ -17028,19 +17028,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &508990595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 508990581}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5420f7501e80996f99810650dc39a518, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Grip: 0.3
 --- !u!1001 &509036694
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -61947,9 +61934,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2013534686279590157, guid: f6ffaf296e311084387f64d49ba79860, type: 3}
       insertIndex: -1
       addedObject: {fileID: 508990592}
-    - targetCorrespondingSourceObject: {fileID: 2013534686279590157, guid: f6ffaf296e311084387f64d49ba79860, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 508990595}
   m_SourcePrefab: {fileID: 100100000, guid: f6ffaf296e311084387f64d49ba79860, type: 3}
 --- !u!1001 &1882415391
 PrefabInstance:

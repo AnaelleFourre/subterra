@@ -141,7 +141,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength();
+        float maxLength = rope.getRopeLength()+0.5f;
 
         if (dist > maxLength)
         {

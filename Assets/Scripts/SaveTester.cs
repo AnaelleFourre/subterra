@@ -34,7 +34,7 @@ public class SaveTester : MonoBehaviour
         if (Keyboard.current.iKey.wasPressedThisFrame)
         {
             if (GameObject.FindWithTag("Player") == null) Debug.Log("Plyer null");
-            SaveManager.InitSave("TestSave", "SampleScene", GameObject.FindWithTag("Player").transform.position);
+            SaveManager.InitSave("TestSave", "SampleScene");
             Debug.Log("→ Init du slot");
         }
 
@@ -43,7 +43,7 @@ public class SaveTester : MonoBehaviour
         {
             if (!File.Exists(Application.persistentDataPath + $"/save_{curSlot}.json"))
             {
-                SaveManager.InitSave("TestSave", "SampleScene", GameObject.FindWithTag("Player").transform.position);
+                SaveManager.InitSave("TestSave", "SampleScene");
                 Debug.Log("→ Init du slot");
             }
 

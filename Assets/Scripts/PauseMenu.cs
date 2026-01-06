@@ -18,7 +18,8 @@ public class PauseMenu : MonoBehaviour
     void Update()
     {
         var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame){
+        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
+        {
             conteneur.SetActive(true);
             Time.timeScale = 0;
         }
@@ -26,8 +27,9 @@ public class PauseMenu : MonoBehaviour
 
     /**
     * Retire le menu et relance le jeu
-    */ 
-    public void Continuer(){
+    */
+    public void Continuer()
+    {
         conteneur.SetActive(false);
         Time.timeScale = 1;
     }
@@ -35,11 +37,14 @@ public class PauseMenu : MonoBehaviour
     /**
     * Renvoie au menu principal
     */
-    public void MenuPrincipal(){
+    public void MenuPrincipal()
+    {
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void Quitter(){
+    public void Quitter()
+    {
         Application.Quit();
     }
 

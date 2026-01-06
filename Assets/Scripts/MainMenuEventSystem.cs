@@ -12,12 +12,14 @@ public class MainMenuEventSystem : MonoBehaviour
 
     public GameObject eventSystem2Shut; // L'eventsystem à désactiver
 
-    void Awake(){
-        if (FindObjectsOfType<EventSystem>().Length > 1){
+    void Awake()
+    {
+        if (FindObjectsOfType<EventSystem>().Length > 1)
+        {
             Destroy(eventSystem2Shut);
-        } 
+        }
     }
 
-    
+
 
 }

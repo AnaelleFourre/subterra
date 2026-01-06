@@ -12,25 +12,39 @@ public class PauseMenu : MonoBehaviour
 
     public GameObject conteneur;
 
+    /**
+    * Si la touche ESC est appuyé, met en pause et affiche le menu
+    */
     void Update()
     {
         var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame){
+        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
+        {
             conteneur.SetActive(true);
             Time.timeScale = 0;
         }
     }
 
-    public void Continuer(){
+    /**
+    * Retire le menu et relance le jeu
+    */
+    public void Continuer()
+    {
         conteneur.SetActive(false);
         Time.timeScale = 1;
     }
 
-    public void MenuPrincipal(){
+    /**
+    * Renvoie au menu principal
+    */
+    public void MenuPrincipal()
+    {
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
     }
 
-    public void Quitter(){
+    public void Quitter()
+    {
         Application.Quit();
     }
 

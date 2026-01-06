@@ -1,21 +1,64 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
 
 public class SceneLoader : MonoBehaviour
 {
     [SerializeField] private string sceneName;
+    [SerializeField] private DoorManager linkedDoor;
 
-    public void OnTriggerEnter(Collider other)
+    TeleportTrigger trigger;
+    bool isTeleporting;
+
+    void Start()
     {
-        if (other.CompareTag("Player"))
-        {
-            SceneManager.LoadScene(sceneName);
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
+        trigger = GetComponentInChildren<TeleportTrigger>();
+        isTeleporting = false;
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    void OnTriggerEnter(Collider other)
+    {
+        if (isTeleporting || trigger != null || !other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
+        {
+            return;
+        }
+
+        StartTeleport();
+    }
+
+    public void StartTeleport()
+    {
+        if (isTeleporting)
+        {
+            return;
+        }
+
+        isTeleporting = true;
+        FadeTransition();
+    }
+
+    async void FadeTransition()
+    {
+        var playerMovement = FindAnyObjectByType<PlayerMovement>();
+        if (playerMovement)
+        {
+            playerMovement.enabled = false;
+        }
+
+        await ScreenFader.Instance.FadeOut();
+
+        SceneManager.LoadScene(sceneName);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        if (playerMovement)
+        {
+            playerMovement.enabled = true;
+        }
+
+        await ScreenFader.Instance.FadeIn();
+        isTeleporting = false;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         GameObject player = GameObject.FindWithTag("Player");
 

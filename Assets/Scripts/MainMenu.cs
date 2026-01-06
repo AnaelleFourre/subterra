@@ -1,33 +1,39 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
-    public void Resume(){
-        // if (pas de sauvegarde)
-        SceneManager.LoadScene("SampleScene");
-        // else
-        // Prends la derniere sauvegarde
-    }
 
     /**
     * number (int) : 0,1 ou 2 - Indique le numéro de la sauvegarde
+    * Charge la sauvegarde {number}
     */
-    public void Saves(int number){
-        SaveManager.currentSlot = number;
+    public void Saves(int number)
+    {
+        SaveManager.SetSlot(number);
         SaveData data = SaveManager.SlotInfo();
-        if (data == null){
-            return; // Si la sauvegarde est vide, on ne fait rien
+        if (data == null)
+        {
+            Debug.Log("Avant InitSave - MainMenu");
+            SaveManager.InitSave("Save n°" + (number + 1), "Level1");
+            Debug.Log("Après InitSave - MainMenu" + CheckpointManager.instance.GetDefaultSpawn());
         }
         SaveManager.Load();
     }
 
-    public void Parameters(){
-        
+    /**
+    * Charge la page des paramètres
+    *
+    */
+    public void Parameters()
+    {
+
     }
 
-    public void QuitGame(){
+    public void QuitGame()
+    {
         Application.Quit();
     }
 }

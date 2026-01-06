@@ -16,7 +16,7 @@ public class SaveManager
         }
     }
 
-    public static void InitSave(string saveName, string startSceneName, Vector3 startPosition)
+    public static void InitSave(string saveName, string startSceneName)
     {
         var path = paths[currentSlot];
 
@@ -25,13 +25,14 @@ public class SaveManager
             SaveData data = new SaveData
             {
                 saveName = saveName,
-                playerPosition = startPosition,
+                playerPosition = Vector3.zero,
                 playTime = 0,
                 levelNumber = 1,
-                sceneName = startSceneName
+                sceneName = startSceneName,
+                hasCheckpoint = false
             };
             data.saveName = saveName;
-            data.playerPosition = startPosition;
+            data.playerPosition = Vector3.zero;
             data.playTime = 0;
 
             string json = JsonUtility.ToJson(data, true);
@@ -51,6 +52,7 @@ public class SaveManager
         currentData.playTime = TimeManager.instance.playTime;
         currentData.levelNumber = levelNumber;
         currentData.sceneName = SceneManager.GetActiveScene().name;
+        currentData.hasCheckpoint = true;
 
         string json = JsonUtility.ToJson(currentData, true);
         File.WriteAllText(path, json);
@@ -68,23 +70,27 @@ public class SaveManager
         string json = File.ReadAllText(path);
         currentData = JsonUtility.FromJson<SaveData>(json);
 
-        TimeManager.instance.SetPlayTime(currentData.playTime);
-
-        SceneManager.sceneLoaded += OnSceneLoaded;
         SceneManager.LoadScene(currentData.sceneName);
+        SceneManager.sceneLoaded += OnSceneLoaded;
 
         return true;
     }
 
     private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-
         GameObject player = GameObject.FindWithTag("Player");
+
         if (player != null)
         {
-            player.transform.position = currentData.playerPosition;
+            player.transform.position = (currentData.hasCheckpoint ? currentData.playerPosition : CheckpointManager.instance.GetDefaultSpawn()) + Vector3.up * 0.5f;
         }
+
+        if (TimeManager.instance != null)
+        {
+            TimeManager.instance.SetPlayTime(currentData.playTime);
+        }
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     public static bool DeleteSave(int slot)

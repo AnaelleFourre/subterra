@@ -24,11 +24,6 @@ public class CheckpointManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        FindDefaultCheckpoint();
-    }
-
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -41,6 +36,8 @@ public class CheckpointManager : MonoBehaviour
 
     private void FindDefaultCheckpoint()
     {
+        defaultCheckpoint = null;
+
         var allCp = FindObjectsByType<Checkpoint>(FindObjectsSortMode.None);
 
         foreach (var cp in allCp)
@@ -83,6 +80,7 @@ public class CheckpointManager : MonoBehaviour
         {
             return defaultCheckpoint.GetSpawnPosition();
         }
+        Debug.Log("aaa");
         return Vector3.zero;
     }
 }

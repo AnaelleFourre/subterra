@@ -8,4 +8,5 @@ public class SaveData
     public float playTime;
     public int levelNumber;
     public string sceneName;
+    public bool hasCheckpoint;
 }

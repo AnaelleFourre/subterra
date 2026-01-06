@@ -65,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rope.enabled)
+        if (rope != null && rope.enabled)
             EnforceRopeConstraint();
 
         // if (moveAmount != Vector2.zero)
@@ -112,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
         var targetVelocity = direction * WalkSpeed;
         float gripSpeed = 50f;
-        
+
         if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
         {
             foreach (var hit in hits)
@@ -136,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-    
+
     private void EnforceRopeConstraint()
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();

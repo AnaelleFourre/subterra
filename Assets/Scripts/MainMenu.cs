@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour
         if (data == null)
         {
             Debug.Log("Avant InitSave - MainMenu");
-            SaveManager.InitSave("Save n°" + (number + 1), "SampleScene");
+            SaveManager.InitSave("Save n°" + (number + 1), "Level1");
             Debug.Log("Après InitSave - MainMenu" + CheckpointManager.instance.GetDefaultSpawn());
         }
         SaveManager.Load();

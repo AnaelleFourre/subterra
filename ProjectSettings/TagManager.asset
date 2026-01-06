@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - CameraTarget
+  - Ladder
   layers:
   - Default
   - TransparentFX

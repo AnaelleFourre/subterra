@@ -45,7 +45,6 @@ public class PlayerMovement : MonoBehaviour
         {
             isClimbing = true;
             rigidBody.useGravity = false;
-            Debug.Log("Climbing ladder");
         }
     }
     void OnTriggerExit(Collider other)
@@ -55,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
         {
             isClimbing = false;
             rigidBody.useGravity = true;
-            Debug.Log("Exited ladder");
         }
     }
 
@@ -147,7 +145,7 @@ public class PlayerMovement : MonoBehaviour
             // On icy floor
             currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, floorGrip * Time.fixedDeltaTime);
         }
-        if (currentVelocity.magnitude > 0.01f)
+        if (currentVelocity.magnitude > 0.01f) // why ?
         {
             // Move
             var deltaPosition = currentVelocity * Time.fixedDeltaTime;

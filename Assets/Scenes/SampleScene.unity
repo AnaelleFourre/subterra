@@ -131,10 +131,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DoorKeyPair
       objectReference: {fileID: 0}
-    - target: {fileID: 1763877182005325196, guid: bf2042b90038a154e8334ead50664f51, type: 3}
-      propertyPath: doorCamera
-      value: 
-      objectReference: {fileID: 1262362528}
     - target: {fileID: 1919729917270159454, guid: bf2042b90038a154e8334ead50664f51, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.6241007

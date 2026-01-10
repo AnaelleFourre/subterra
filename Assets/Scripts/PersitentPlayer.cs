@@ -29,7 +29,17 @@ public class PersistentPlayer : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        var spawnPosition = CheckpointManager.instance.GetDefaultSpawn() + Vector3.up * 0.5f;
+        Vector3 spawnPosition;
+
+        if (scene.name == "MainMenu")
+        {
+            spawnPosition = new Vector3(0, 2, -100);
+        }
+        else
+        {
+            spawnPosition = CheckpointManager.instance.GetDefaultSpawn() + Vector3.up * 0.5f;
+        }
+
         transform.position = spawnPosition;
     }
 }

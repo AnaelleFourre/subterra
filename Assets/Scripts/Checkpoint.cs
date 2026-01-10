@@ -27,7 +27,6 @@ public class Checkpoint : MonoBehaviour
         {
             CheckpointManager.instance.ActivateCheckpoint(this);
             SaveManager.Save(transform.position, levelNumber);
-            Debug.Log($"Checkpoint atteint ! Niveau sauvegardé : {levelNumber}");
         }
     }
 

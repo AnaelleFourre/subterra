@@ -62,7 +62,6 @@ public class CheckpointManager : MonoBehaviour
 
         currentCheckpoint = checkpoint;
         checkpoint.Activate();
-        Debug.Log($"Checkpoint actif = {checkpoint.name}");
     }
 
     public Vector3 GetRespawnPosition()
@@ -80,7 +79,6 @@ public class CheckpointManager : MonoBehaviour
         {
             return defaultCheckpoint.GetSpawnPosition();
         }
-        Debug.Log("aaa");
         return Vector3.zero;
     }
 }

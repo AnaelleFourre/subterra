@@ -9,22 +9,21 @@ public class DeleteSaveButton : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
     {
-        SaveManager.SetSlot(number);
-        SaveData data = SaveManager.SlotInfo();
-        if (data == null){
+        SaveData data = SaveManager.SlotData(number);
+        if (data == null)
+        {
             button.SetActive(false);
             return;
         }
-        
+
     }
 
     public void DeleteSave()
     {
-        SaveManager.SetSlot(number);
-        SaveData data = SaveManager.SlotInfo();
+        SaveData data = SaveManager.SlotData(number);
         if (data != null)
         {
-            SaveManager.DeleteSave(number);   
+            SaveManager.DeleteSave(number);
         }
     }
 }

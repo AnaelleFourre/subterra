@@ -15,10 +15,10 @@ public class SaveText : MonoBehaviour
     */
     void Update()
     {
-        SaveManager.SetSlot(number);
-        SaveData data = SaveManager.SlotInfo();
+        SaveData data = SaveManager.SlotData(number);
         string texte;
-        if (data == null){
+        if (data == null)
+        {
             texte = "Sauvegarde vide";
             texteUI.text = texte;
             return;

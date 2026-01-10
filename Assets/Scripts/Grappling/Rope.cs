@@ -67,25 +67,25 @@ public class Rope : MonoBehaviour
         lineRenderer = GetComponent<LineRenderer>();
         enabled = false;
 
-
         raycastHitBuffer = new RaycastHit[colliderBufferSize];
         colliderHitBuffer = new Collider[colliderBufferSize];
         gravity = new Vector3(0, -gravityStrength, 0);
         cam = Camera.main;
 
-        // using a single dynamically created GameObject to test collisions on every node
-        nodeTester = new GameObject();
-        nodeTester.name = "Node Tester";
-        nodeTester.layer = 8;
-        nodeCollider = nodeTester.AddComponent<SphereCollider>();
-        nodeCollider.radius = nodeColliderRadius;
+        if (nodeTester == null)
+        {
+            nodeTester = new GameObject("Node Tester");
+            nodeTester.layer = 8;
+            DontDestroyOnLoad(nodeTester);
 
-
+            nodeCollider = nodeTester.AddComponent<SphereCollider>();
+            nodeCollider.radius = nodeColliderRadius;
+        }
     }
 
     public void initRope(Transform start, Vector3 endPoint)
     {
-        
+
         gunTip = start;
         ropeStart = gunTip.position;
         ropeEnd = endPoint;
@@ -96,7 +96,7 @@ public class Rope : MonoBehaviour
         currentNodePositions = new Vector3[totalNodes];
         previousNodePositions = new Vector3[totalNodes];
         currentNodeRotations = new Quaternion[totalNodes];
-        
+
         matrices = new Matrix4x4[totalNodes];
 
         Vector3 startPosition = Vector3.zero;
@@ -149,7 +149,7 @@ public class Rope : MonoBehaviour
 
         ropeStart = gunTip.position;
         currentNodePositions[0] = ropeStart;
-        
+
         DrawRope();
 
         // Instanced drawing here is really performant over using GameObjects
@@ -158,7 +158,7 @@ public class Rope : MonoBehaviour
 
     private void OnDisable()
     {
-       lineRenderer.positionCount = 0;
+        lineRenderer.positionCount = 0;
     }
 
     private void FixedUpdate()
@@ -320,7 +320,7 @@ public class Rope : MonoBehaviour
         lineRenderer.positionCount = linePositions.Length;
         lineRenderer.startColor = Color.blue;
         lineRenderer.SetPositions(linePositions);
- 
+
     }
     public void RemoveFirstNode()
     {

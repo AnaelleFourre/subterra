@@ -13,12 +13,12 @@ public class SaveText : MonoBehaviour
     /**
     * Récupère le bon texte à afficher dans le slot de sauvegarde sur le menu.
     */
-    void Update()
+    void Start()
     {
-        SaveData data = SaveManager.SlotData(number);
+        SaveManager.SetSlot(number);
+        SaveData data = SaveManager.SlotInfo();
         string texte;
-        if (data == null)
-        {
+        if (data == null){
             texte = "Sauvegarde vide";
             texteUI.text = texte;
             return;

@@ -64,7 +64,7 @@ public class SaveTester : MonoBehaviour
         // Info -> u
         if (Keyboard.current.uKey.wasPressedThisFrame)
         {
-            var info = SaveManager.SlotData(curSlot);
+            var info = SaveManager.SlotInfo();
             if (info == null)
                 Debug.Log("→ Slot vide");
             else

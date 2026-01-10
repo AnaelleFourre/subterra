@@ -13,7 +13,7 @@ public class MainMenu : MonoBehaviour
     public void Saves(int number)
     {
         SaveManager.SetSlot(number);
-        SaveData data = SaveManager.SlotData(number);
+        SaveData data = SaveManager.SlotInfo();
         if (data == null)
         {
             Debug.Log("Avant InitSave - MainMenu");

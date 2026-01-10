@@ -80,6 +80,7 @@ public class CheckpointManager : MonoBehaviour
         {
             return defaultCheckpoint.GetSpawnPosition();
         }
+        Debug.Log("aaa");
         return Vector3.zero;
     }
 }

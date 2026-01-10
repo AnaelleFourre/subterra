@@ -111,9 +111,9 @@ public class SaveManager
         return false;
     }
 
-    public static SaveData SlotData(int slotNumber)
+    public static SaveData SlotInfo()
     {
-        var path = paths[slotNumber];
+        var path = paths[currentSlot];
 
         if (!File.Exists(path))
         {

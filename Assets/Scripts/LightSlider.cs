@@ -4,15 +4,21 @@ using UnityEngine.UI;
 public class LightSlider : MonoBehaviour
 {
     [SerializeField] private Slider brightnessSlider;
-    [SerializeField] private Camera mainCamera;
+     private Image brightnessPanel;
     
     void Start()
     {
-        if (mainCamera == null)
-            mainCamera = Camera.main;
+
+        GameObject panelObject = GameObject.Find("BrightnessPanel"); // Change le nom selon ton panneau
         
-        // Charger la valeur sauvegardée
-        float savedBrightness = PlayerPrefs.GetFloat("Brightness", 1f);
+        if (panelObject != null)
+        {
+            brightnessPanel = panelObject.GetComponent<Image>();
+        }
+
+        PlayerPrefs.DeleteKey("Brightness");
+    
+        float savedBrightness = PlayerPrefs.GetFloat("Brightness", 1f - brightnessPanel.color.a);
         brightnessSlider.value = savedBrightness;
         SetBrightness(savedBrightness);
         
@@ -21,9 +27,9 @@ public class LightSlider : MonoBehaviour
     
     public void SetBrightness(float value)
     {
-        // Ajuster la couleur de fond de la caméra
-        // value entre 0 et 1
-        mainCamera.backgroundColor = new Color(value, value, value, 1f);
+        Color panelColor = brightnessPanel.color;
+        panelColor.a = 1f - value;
+        brightnessPanel.color = panelColor;
         
         PlayerPrefs.SetFloat("Brightness", value);
     }

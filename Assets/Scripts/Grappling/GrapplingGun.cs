@@ -3,12 +3,14 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;   // nécessaire
 using UnityEngine.Rendering;
+using UnityEngine.Audio;
 
 public class GrapplingGun : MonoBehaviour
 {   
     /// <summary>
     /// Gestion du grappin sans le rendu physique et implémentation de la mécanique de tirage de corde pour remonter.
     /// </summary>
+    [SerializeField] private AudioClip cassetteClip;
     private Vector3 grapplePoint;
     public Transform gunTip, player;
     public GrappleSelector selector;
@@ -108,6 +110,7 @@ public class GrapplingGun : MonoBehaviour
 
         grapplePoint = best.position;
         rope.initRope(gunTip, grapplePoint);
+        SoundFXManager.instance.PlaySoundFXClip(cassetteClip, transform, 1f);
         rope.enabled = true;
 
 

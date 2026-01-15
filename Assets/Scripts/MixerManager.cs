@@ -6,14 +6,14 @@ public class MixerManager : MonoBehaviour
     [SerializeField] private AudioMixer audioMixer;
 
     public void SetMasterVolume(float level) {
-        audioMixer.setFloat("masterVolume", level)
+        audioMixer.SetFloat("masterVolume", Mathf.Log10(level) * 20);
     }
 
     public void SetMusicVolume(float level) {
-        audioMixer.setFloat("musicVolume", level)
+        audioMixer.SetFloat("musicVolume", Mathf.Log10(level) * 20);
     }
 
     public void SetSFXVolume(float level) {
-        audioMixer.setFloat("SFXVolume", level)
+        audioMixer.SetFloat("SFXVolume", Mathf.Log10(level) * 20);
     }
 }

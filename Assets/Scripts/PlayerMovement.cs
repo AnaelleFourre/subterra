@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
     [SerializeField] private float JumpForce = 5;
+    [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip iceClip;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
@@ -56,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
         if (jumpAction.WasPressedThisFrame() && canJump())
         {
             Jump();
+            SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 1f);
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -120,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
                 if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
                 {
                     gripSpeed = icyFloor.Grip;
+                    SoundFXManager.instance.PlaySoundFXClip(iceClip, transform, 1f);
                     break;
                 }
             }

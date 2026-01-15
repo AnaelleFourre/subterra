@@ -11,6 +11,8 @@ public class GrapplingGun : MonoBehaviour
     /// Gestion du grappin sans le rendu physique et implémentation de la mécanique de tirage de corde pour remonter.
     /// </summary>
     [SerializeField] private AudioClip cassetteClip;
+    [SerializeField] private AudioClip extensionClip;
+    [SerializeField] private AudioClip balancierClip;
     private Vector3 grapplePoint;
     public Transform gunTip, player;
     public GrappleSelector selector;
@@ -86,6 +88,8 @@ public class GrapplingGun : MonoBehaviour
         if (isGrappling)
         {
             StartGrapple();
+            SoundFXManager.instance.PlaySoundFXClip(balancierClip, gunTip.transform, 1f);
+
         }
         else
         {
@@ -139,6 +143,8 @@ public class GrapplingGun : MonoBehaviour
             if (!isPaused)
             {
                 rope.RemoveFirstNode();
+                SoundFXManager.instance.PlaySoundFXClip(extensionClip, transform, 1f);
+
                 nodesRemovedSincePause++;
 
                 if (nodesRemovedSincePause >= 5)

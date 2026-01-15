@@ -4067,6 +4067,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cassetteClip: {fileID: 8300000, guid: 0892a1d204081a402a683c8c60034c5b, type: 3}
+  extensionClip: {fileID: 8300000, guid: 62dce3a2d56d02f2e98586e896d9191f, type: 3}
+  balancierClip: {fileID: 8300000, guid: feb7b16393dc273958a49bb68221717c, type: 3}
   gunTip: {fileID: 979294178}
   player: {fileID: 1293545787}
   selector: {fileID: 1293545788}

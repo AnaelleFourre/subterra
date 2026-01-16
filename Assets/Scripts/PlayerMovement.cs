@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
-    [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     private InputAction moveAction;
     private InputAction jumpAction;
@@ -18,7 +17,9 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
     private Vector3 currentVelocity;
-    private bool isClimbing;
+
+    // ANIMATION ADD
+    private Animator animator;
 
     private void OnEnable()
     {
@@ -39,24 +40,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Ladder")
-        {
-            isClimbing = true;
-            rigidBody.useGravity = false;
-        }
-    }
-    void OnTriggerExit(Collider other)
-    {
-
-        if (other.gameObject.tag == "Ladder")
-        {
-            isClimbing = false;
-            rigidBody.useGravity = true;
-        }
-    }
-
     private void Awake()
     {
         moveAction = InputSystem.actions.FindAction("Move");
@@ -68,13 +51,15 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
         rope = GetComponentInChildren<Rope>();
-        isClimbing = false;
+
+        // ANIMATION ADD
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
     {
         moveAmount = moveAction.ReadValue<Vector2>();
-        if (jumpAction.WasPressedThisFrame() && CanJump())
+        if (jumpAction.WasPressedThisFrame() && canJump())
         {
             Jump();
         }
@@ -86,23 +71,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rope != null && rope.enabled)
+        if (rope.enabled)
             EnforceRopeConstraint();
 
-        if (isClimbing)
-        {
-            if (moveAmount != Vector2.zero)
-                Climb();
-        }
-        else
-        {
-            Walk();
-        }
+        Walk();
+
         // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
         cameraTarget.position = transform.position;
+
+        // ANIMATION ADD
+        animator.SetFloat("Speed", currentVelocity.magnitude);
     }
 
-    private bool CanJump()
+    private bool canJump()
     {
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
@@ -120,37 +101,27 @@ public class PlayerMovement : MonoBehaviour
         rigidBody.MoveRotation(cameraTarget.rotation);
     }
 
-    // If we're stepping on ice then return an IcyFloor.Grip, else return -1
-    private float GetIcyFloorGrip()
-    {
-        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore);
-        foreach (var hitCollider in hitColliders)
-            if (hitCollider.TryGetComponent<IcyFloor>(out var icyFloor))
-                return icyFloor.Grip;
-        return -1f;
-    }
-
     private void Walk()
     {
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        var targetVelocity = direction * WalkSpeed; // can be Vector3.zero if moveAmount is Vector2.zero
-        var floorGrip = GetIcyFloorGrip();
-        if (floorGrip == -1f)
+        var targetVelocity = direction * WalkSpeed;
+        float gripSpeed = 50f;
+
+        if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
         {
-            // Not on icy floor
-            currentVelocity = targetVelocity;
+            foreach (var hit in hits)
+            {
+                if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
+                {
+                    gripSpeed = icyFloor.Grip;
+                    break;
+                }
+            }
         }
-        else
+        currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, gripSpeed * Time.fixedDeltaTime);
+        if (currentVelocity.magnitude > 0.01f)
         {
-            // On icy floor
-            currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, floorGrip * Time.fixedDeltaTime);
-        }
-        if (currentVelocity.magnitude > 0.01f) // why ?
-        {
-            // Move
-            var deltaPosition = currentVelocity * Time.fixedDeltaTime;
-            rigidBody.MovePosition(rigidBody.position + deltaPosition);
-            // Rotate
+            rigidBody.MovePosition(rigidBody.position + currentVelocity * Time.deltaTime);
             if (direction != Vector3.zero)
             {
                 var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
@@ -160,19 +131,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void Climb()
-    {
-        // Move
-        var direction = (moveAmount.y * cameraTarget.up + moveAmount.x * cameraTarget.right).normalized;
-        var deltaPosition = direction * ClimbingSpeed * Time.deltaTime;
-        rigidBody.MovePosition(rigidBody.position + deltaPosition);
-    }
-
     private void EnforceRopeConstraint()
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength() + 0.5f;
+        float maxLength = rope.getRopeLength();
 
         if (dist > maxLength)
         {
@@ -187,5 +150,4 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
-
 }

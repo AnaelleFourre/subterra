@@ -53,10 +53,7 @@ public class PlayerMovement : MonoBehaviour
         rope = GetComponentInChildren<Rope>();
 
         // ANIMATION ADD
-        if (animator != null)
-        {
-            animator = GetComponentInChildren<Animator>();
-        }
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -154,6 +151,14 @@ public class PlayerMovement : MonoBehaviour
             {
                 rigidBody.linearVelocity = v - fromAnchor.normalized * outwardSpeed;
             }
+        }
+    }
+
+    public void ResetAnimationSpeed()
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
         }
     }
 }

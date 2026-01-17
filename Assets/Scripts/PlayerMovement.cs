@@ -71,7 +71,6 @@ public class PlayerMovement : MonoBehaviour
             EnforceRopeConstraint();
 
         Walk();
-        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
         cameraTarget.position = transform.position;
     }
 
@@ -82,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.Impulse);
+        rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
     }
 
     private void Turn()
@@ -115,8 +114,10 @@ public class PlayerMovement : MonoBehaviour
         Vector3 targetVelocity = direction * WalkSpeed;
         Vector3 currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
         Vector3 velocityDiff = targetVelocity - currentHorizontalVelocity;
-        
-        Vector3 force = velocityDiff * MovementForce * gripSpeed;
+
+        // The player should be heavier when swinging on the rope for better control
+        float massScale = (rope != null && rope.enabled && !canJump()) ? 1f : rigidBody.mass;
+        Vector3 force = velocityDiff * MovementForce * gripSpeed * massScale;
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed
@@ -135,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength() +0.5f;
+        float maxLength = rope.getRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {

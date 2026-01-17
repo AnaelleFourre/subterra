@@ -33959,7 +33959,7 @@ MonoBehaviour:
   velocityDampen: 0.99
   stiffness: 0.95
   attachedRigidbody: {fileID: 1519873830}
-  pullForceStrength: 200
+  pullForceStrength: 800
   pullThreshold: 0.95
 --- !u!120 &1019659969
 LineRenderer:
@@ -50090,7 +50090,7 @@ Transform:
   m_GameObject: {fileID: 1519873824}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -2.512839, y: -0.9151306, z: 27.038923}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -50196,7 +50196,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1519873824}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 10
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

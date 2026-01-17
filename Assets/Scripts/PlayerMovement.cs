@@ -53,7 +53,10 @@ public class PlayerMovement : MonoBehaviour
         rope = GetComponentInChildren<Rope>();
 
         // ANIMATION ADD
-        animator = GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
     }
 
     private void Update()
@@ -80,7 +83,10 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
-        animator.SetFloat("Speed", currentVelocity.magnitude);
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", currentVelocity.magnitude);
+        }
     }
 
     private bool canJump()

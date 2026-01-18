@@ -41,6 +41,7 @@ public class SceneLoader : MonoBehaviour
         var playerMovement = FindAnyObjectByType<PlayerMovement>();
         if (playerMovement)
         {
+            playerMovement.ResetAnimationSpeed();
             playerMovement.enabled = false;
         }
 

@@ -12,7 +12,9 @@ public class TeleportTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
+        {
             return;
+        }
 
         sceneLoader.StartTeleport();
     }

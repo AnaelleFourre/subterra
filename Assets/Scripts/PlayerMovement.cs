@@ -19,6 +19,10 @@ public class PlayerMovement : MonoBehaviour
     private Transform feetTransform;
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
+    private Vector3 currentVelocity;
+
+    // ANIMATION ADD
+    private Animator animator;
 
     private void OnEnable()
     {
@@ -50,6 +54,9 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
         rope = GetComponentInChildren<Rope>();
+
+        // ANIMATION ADD
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -67,11 +74,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rope != null && rope.enabled)
+        if (rope.enabled)
             EnforceRopeConstraint();
 
         Walk();
         cameraTarget.position = transform.position;
+
+        // ANIMATION ADD
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", currentVelocity.magnitude);
+        }
     }
 
     private bool canJump()
@@ -152,4 +165,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void ResetAnimationSpeed()
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+        }
+    }
 }

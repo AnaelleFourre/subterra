@@ -61,6 +61,7 @@ public class DoorManager : MonoBehaviour
     {
         if (playerControls != null)
         {
+            playerControls.ResetAnimationSpeed();
             playerControls.enabled = false;
         }
 

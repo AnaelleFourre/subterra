@@ -13,6 +13,12 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] private AudioClip cassetteClip;
     [SerializeField] private AudioClip extensionClip;
     [SerializeField] private AudioClip balancierClip;
+    public Transform feet;           
+    public LayerMask groundLayer;
+
+    private bool isGrounded;
+    private float soundTimer = 0f;
+
     private Vector3 grapplePoint;
     public Transform gunTip, player;
     public GrappleSelector selector;
@@ -54,6 +60,21 @@ public class GrapplingGun : MonoBehaviour
     }
     void Update()
     {
+
+        if (soundTimer > 0)
+        {
+            soundTimer -= Time.deltaTime;
+        }
+        if (isGrappling) {
+            isGrounded = Physics.CheckSphere(feet.position, 0.2f, groundLayer); // radius of 0.2f
+            if (!isGrounded && soundTimer <= 0)
+            {
+                SoundFXManager.instance.PlaySoundFXClip(balancierClip, gunTip.transform, 1f);
+                soundTimer = balancierClip.length * 3; //joue le son une fois sur 3
+            }
+        }
+
+
         if (isGrappling && isClimbing && !isPaused)
         {
             PullRope();
@@ -88,8 +109,6 @@ public class GrapplingGun : MonoBehaviour
         if (isGrappling)
         {
             StartGrapple();
-            SoundFXManager.instance.PlaySoundFXClip(balancierClip, gunTip.transform, 1f);
-
         }
         else
         {

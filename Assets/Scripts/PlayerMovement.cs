@@ -20,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
     private Vector3 currentVelocity;
+    public LayerMask groundLayer;
+
+    private bool isGrounded;
+    private float soundTimer = 0f;
 
     private void OnEnable()
     {
@@ -124,11 +128,24 @@ public class PlayerMovement : MonoBehaviour
                 if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
                 {
                     gripSpeed = icyFloor.Grip;
-                    SoundFXManager.instance.PlaySoundFXClip(iceClip, transform, 1f);
                     break;
                 }
             }
         }
+
+        if (soundTimer > 0)
+        {
+            soundTimer -= Time.deltaTime;
+        }
+        if (gripSpeed == 0.3f) { // 0.3f c'est icyFloor.Grip
+            isGrounded = Physics.CheckSphere(feetTransform.position, 0.2f, groundLayer); // radius of 0.2f
+            if (!isGrounded && soundTimer <= 0)
+            {
+                SoundFXManager.instance.PlaySoundFXClip(iceClip, transform, 1f);
+                soundTimer = iceClip.length * 2; // joue le son une fois sur 2
+            }
+        }
+
         currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, gripSpeed * Time.fixedDeltaTime);
         if (currentVelocity.magnitude > 0.01f)
         {

@@ -17,7 +17,8 @@ public class GrapplingGun : MonoBehaviour
     public LayerMask groundLayer;
 
     private bool isGrounded;
-    private float soundTimer = 0f;
+    private float balancierSoundTimer = 0f;
+    private float climbSoundTimer = 0f;
 
     private Vector3 grapplePoint;
     public Transform gunTip, player;
@@ -61,19 +62,23 @@ public class GrapplingGun : MonoBehaviour
     void Update()
     {
 
-        if (soundTimer > 0)
+        if (balancierSoundTimer > 0)
         {
-            soundTimer -= Time.deltaTime;
+            balancierSoundTimer -= Time.deltaTime;
         }
         if (isGrappling) {
             isGrounded = Physics.CheckSphere(feet.position, 0.2f, groundLayer); // radius of 0.2f
-            if (!isGrounded && soundTimer <= 0)
+            if (!isGrounded && balancierSoundTimer <= 0)
             {
                 SoundFXManager.instance.PlaySoundFXClip(balancierClip, gunTip.transform, 1f);
-                soundTimer = balancierClip.length * 3; //joue le son une fois sur 3
+                balancierSoundTimer = balancierClip.length * 3; //joue le son une fois sur 3
             }
         }
 
+        if (climbSoundTimer > 0)
+        {
+            climbSoundTimer -= Time.deltaTime;
+        }
 
         if (isGrappling && isClimbing && !isPaused)
         {
@@ -150,6 +155,13 @@ public class GrapplingGun : MonoBehaviour
             return;
         }
         
+        if (climbSoundTimer <= 0)
+        {
+            SoundFXManager.instance.PlaySoundFXClip(extensionClip, transform, 0.5f);
+            
+            climbSoundTimer = extensionClip.length; 
+        }
+
         Vector3 firstNode = rope.currentNodePositions[0];
         Vector3 secondNode = rope.currentNodePositions[1];
 
@@ -162,8 +174,6 @@ public class GrapplingGun : MonoBehaviour
             if (!isPaused)
             {
                 rope.RemoveFirstNode();
-                SoundFXManager.instance.PlaySoundFXClip(extensionClip, transform, 1f);
-
                 nodesRemovedSincePause++;
 
                 if (nodesRemovedSincePause >= 5)

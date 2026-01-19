@@ -25,6 +25,9 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private float soundTimer = 0f;
 
+    // ANIMATION ADD
+    private Animator animator;
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -55,6 +58,9 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
         rope = GetComponentInChildren<Rope>();
+
+        // ANIMATION ADD
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Update()
@@ -73,16 +79,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rope != null && rope.enabled)
+        if (rope.enabled)
             EnforceRopeConstraint();
 
-        // if (moveAmount != Vector2.zero)
-        // {
-        //     Walk();
-        // }
         Walk();
+
         // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
         cameraTarget.position = transform.position;
+
+        // ANIMATION ADD
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", currentVelocity.magnitude);
+        }
     }
 
     private bool canJump()
@@ -102,18 +111,6 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.Rotate(0f, angleDegrees, 0f);
         rigidBody.MoveRotation(cameraTarget.rotation);
     }
-
-    // private void Walk()
-    // {
-    //     // Move
-    //     var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-    //     var deltaPosition = direction * WalkSpeed * Time.deltaTime;
-    //         rigidBody.MovePosition(rigidBody.position + deltaPosition);
-    //     // Rotate
-    //     var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-    //                                                         : Quaternion.FromToRotation(transform.forward, direction);
-    //     rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
-    // }
 
     private void Walk()
     {
@@ -163,7 +160,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength()+0.5f;
+        float maxLength = rope.getRopeLength();
 
         if (dist > maxLength)
         {
@@ -179,4 +176,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void ResetAnimationSpeed()
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+        }
+    }
 }

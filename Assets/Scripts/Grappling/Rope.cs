@@ -20,8 +20,8 @@ public class Rope : MonoBehaviour
     [SerializeField] float velocityDampen = 0.1f;
     [SerializeField] float stiffness = 0.95f;
 
-    int iterateCollisionsEvery = 10;
-    int iterations = 100;
+    [SerializeField] int iterateCollisionsEvery = 10;
+    [SerializeField] int iterations = 100;
     int colliderBufferSize = 1;
     RaycastHit[] raycastHitBuffer;
     Collider[] colliderHitBuffer;
@@ -29,7 +29,7 @@ public class Rope : MonoBehaviour
 
 
     [SerializeField] Rigidbody attachedRigidbody;
-    [SerializeField] float pullForceStrength = 200f;
+    [SerializeField] float pullForceStrength = 800f;
     [SerializeField] float pullThreshold = 0.95f;
 
     Vector3 gravity;
@@ -129,6 +129,11 @@ public class Rope : MonoBehaviour
         return ropeEnd;
     }
 
+    public Vector3 getRopeStart()
+    {
+        return ropeStart;
+    }
+
     void Update()
     {
         if (isActiveAndEnabled == false) return;
@@ -171,8 +176,7 @@ public class Rope : MonoBehaviour
     {
         if (attachedRigidbody == null) return;
 
-        Vector3 playerPos = attachedRigidbody.position;
-        Vector3 toGrapplePoint = ropeEnd - playerPos;
+        Vector3 toGrapplePoint = ropeEnd - ropeStart;
         float currentDistance = toGrapplePoint.magnitude;
         float maxRopeLength = getRopeLength();
 
@@ -339,11 +343,11 @@ public class Rope : MonoBehaviour
         }
         else
         {
-            for (int i = 1; i < totalNodes; i++)
+            for (int i = 0; i < totalNodes -1; i++)
             {
-                currentNodePositions[i] = currentNodePositions[i - 1];
-                previousNodePositions[i] = previousNodePositions[i - 1];
-                currentNodeRotations[i] = currentNodeRotations[i - 1];
+                currentNodePositions[i] = currentNodePositions[i + 1];
+                previousNodePositions[i] = previousNodePositions[i + 1];
+                currentNodeRotations[i] = currentNodeRotations[i + 1];
             }
 
             // Redimensionner les tableaux

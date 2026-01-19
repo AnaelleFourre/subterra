@@ -147,7 +147,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void EnforceRopeConstraint()
     {
-        Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
+        Vector3 fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
         float maxLength = rope.getRopeLength() + 0.5f;
 

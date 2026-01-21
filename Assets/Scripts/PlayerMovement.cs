@@ -1,12 +1,15 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
-    [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float WalkingSpeed = 5;
+    [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private float MovementForce = 10f;
     [SerializeField] private float MaxSpeed = 10f;
@@ -20,6 +23,7 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
     private Vector3 currentVelocity;
+    private bool isClimbing;
 
     // ANIMATION ADD
     private Animator animator;
@@ -43,6 +47,25 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
+            rigidBody.useGravity = false;
+            isClimbing = true;
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            rigidBody.useGravity = true;
+            isClimbing = false;
+        }
+    }
+
     private void Awake()
     {
         moveAction = InputSystem.actions.FindAction("Move");
@@ -51,9 +74,9 @@ public class PlayerMovement : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
         cameraTarget = transform.parent.GetChild(1);
-        cameraTarget.position = transform.position;
-        cameraTarget.rotation = transform.rotation;
+        cameraTarget.SetPositionAndRotation(transform.position, transform.rotation);
         rope = GetComponentInChildren<Rope>();
+        isClimbing = false;
 
         // ANIMATION ADD
         animator = GetComponentInChildren<Animator>();
@@ -62,9 +85,12 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         moveAmount = moveAction.ReadValue<Vector2>();
-        if (jumpAction.WasPressedThisFrame() && canJump())
+        if (jumpAction.WasPressedThisFrame())
         {
-            Jump();
+            if (isClimbing)
+                JumpOffLadder();
+            else if (CanJump())
+                Jump();
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -77,7 +103,17 @@ public class PlayerMovement : MonoBehaviour
         if (rope.enabled)
             EnforceRopeConstraint();
 
-        Walk();
+        if (isClimbing)
+        {
+            if (moveAmount != Vector2.zero)
+                Climb();
+        }
+        else
+        {
+            Walk();
+        }
+
+        // In FixedUpdate => cameraTarget follows rigidBody even while jumping or falling
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
@@ -87,76 +123,84 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private bool canJump()
+    private bool CanJump()
     {
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump()
-    {
-        rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
-    }
+    private void Jump() => rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
+
+    private void JumpOffLadder() => rigidBody.AddForce(JumpForce * rigidBody.mass * -cameraTarget.forward, ForceMode.Impulse);
 
     private void Turn()
     {
         var lookAmount = turnAction.ReadValue<Vector2>();
         var angleDegrees = lookAmount.x * 90f;
         cameraTarget.Rotate(0f, angleDegrees, 0f);
-        
-        Quaternion targetRotation = cameraTarget.rotation;
+
+        var targetRotation = cameraTarget.rotation;
         rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
+    }
+
+    // If we're stepping on ice then return an IcyFloor.Grip, else return -1
+    private float GetIcyFloorGrip()
+    {
+        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore);
+        foreach (var hitCollider in hitColliders)
+            if (hitCollider.TryGetComponent<IcyFloor>(out var icyFloor))
+                return icyFloor.Grip;
+        return -1f;
     }
 
     private void Walk()
     {
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        float gripSpeed = 1.0f;
 
-        if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
-        {
-            foreach (var hit in hits)
-            {
-                if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
-                {
-                    gripSpeed = icyFloor.Grip;
-                    break;
-                }
-            }
-        }
+        var floorGrip = GetIcyFloorGrip();
+        var gripSpeed = floorGrip == -1f ? 1f : floorGrip;
 
-        Vector3 targetVelocity = direction * WalkSpeed;
-        Vector3 currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
-        Vector3 velocityDiff = targetVelocity - currentHorizontalVelocity;
+        var targetVelocity = direction * WalkingSpeed;
+        var currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
+        var velocityDiff = targetVelocity - currentHorizontalVelocity;
 
         // The player should be heavier when swinging on the rope for better control
-        float massScale = (rope != null && rope.enabled && !canJump()) ? 1f : rigidBody.mass;
-        Vector3 force = velocityDiff * MovementForce * gripSpeed * massScale;
+        var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
+        var force = gripSpeed * massScale * MovementForce * velocityDiff;
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed
-        Vector3 clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
+        var clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
         rigidBody.linearVelocity = new Vector3(clampedVelocity.x, rigidBody.linearVelocity.y, clampedVelocity.z);
 
         // Only rotate when there's input
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            var targetRotation = Quaternion.LookRotation(direction);
             rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
         }
     }
 
+    private void Climb()
+    {
+        // Move
+        var direction = (moveAmount.y * cameraTarget.up + moveAmount.x * cameraTarget.right).normalized;
+        var deltaPosition = ClimbingSpeed * Time.deltaTime * direction;
+        rigidBody.MovePosition(rigidBody.position + deltaPosition);
+    }
+
+
     private void EnforceRopeConstraint()
     {
-        Vector3 fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
-        float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength() + 0.5f;
+        var fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
+        var dist = fromAnchor.magnitude;
+        var maxLength = rope.getRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {
             rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
 
-            Vector3 v = rigidBody.linearVelocity;
-            float outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
+            var v = rigidBody.linearVelocity;
+            var outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
 
             if (outwardSpeed > 0f)
             {

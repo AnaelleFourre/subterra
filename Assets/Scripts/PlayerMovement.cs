@@ -61,6 +61,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (other.gameObject.CompareTag("Ladder"))
         {
+            const float LadderExitSpeed = 5f;
+            var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
+            rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
             rigidBody.useGravity = true;
             isClimbing = false;
         }
@@ -128,9 +131,9 @@ public class PlayerMovement : MonoBehaviour
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump() => rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
+    private void Jump() => rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
 
-    private void JumpOffLadder() => rigidBody.AddForce(JumpForce * rigidBody.mass * -cameraTarget.forward, ForceMode.Impulse);
+    private void JumpOffLadder() => rigidBody.AddForce(JumpForce * -cameraTarget.forward, ForceMode.VelocityChange);
 
     private void Turn()
     {

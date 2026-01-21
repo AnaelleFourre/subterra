@@ -8,6 +8,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
     [SerializeField] private float JumpForce = 5;
+    [SerializeField] private float MovementForce = 10f;
+    [SerializeField] private float MaxSpeed = 10f;
+    [SerializeField] private float RotationSpeed = 10f;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
@@ -75,8 +78,6 @@ public class PlayerMovement : MonoBehaviour
             EnforceRopeConstraint();
 
         Walk();
-
-        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
@@ -93,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        rigidBody.AddForceAtPosition(JumpForce * Vector3.up, Vector3.zero, ForceMode.Impulse);
+        rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
     }
 
     private void Turn()
@@ -101,14 +102,15 @@ public class PlayerMovement : MonoBehaviour
         var lookAmount = turnAction.ReadValue<Vector2>();
         var angleDegrees = lookAmount.x * 90f;
         cameraTarget.Rotate(0f, angleDegrees, 0f);
-        rigidBody.MoveRotation(cameraTarget.rotation);
+        
+        Quaternion targetRotation = cameraTarget.rotation;
+        rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
     }
 
     private void Walk()
     {
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        var targetVelocity = direction * WalkSpeed;
-        float gripSpeed = 50f;
+        float gripSpeed = 1.0f;
 
         if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
         {
@@ -121,24 +123,33 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
         }
-        currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, gripSpeed * Time.fixedDeltaTime);
-        if (currentVelocity.magnitude > 0.01f)
+
+        Vector3 targetVelocity = direction * WalkSpeed;
+        Vector3 currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
+        Vector3 velocityDiff = targetVelocity - currentHorizontalVelocity;
+
+        // The player should be heavier when swinging on the rope for better control
+        float massScale = (rope != null && rope.enabled && !canJump()) ? 1f : rigidBody.mass;
+        Vector3 force = velocityDiff * MovementForce * gripSpeed * massScale;
+        rigidBody.AddForce(force, ForceMode.Force);
+
+        // Clamp max speed
+        Vector3 clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
+        rigidBody.linearVelocity = new Vector3(clampedVelocity.x, rigidBody.linearVelocity.y, clampedVelocity.z);
+
+        // Only rotate when there's input
+        if (direction != Vector3.zero)
         {
-            rigidBody.MovePosition(rigidBody.position + currentVelocity * Time.deltaTime);
-            if (direction != Vector3.zero)
-            {
-                var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-                                                                    : Quaternion.FromToRotation(transform.forward, direction);
-                rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
-            }
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
         }
     }
 
     private void EnforceRopeConstraint()
     {
-        Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
+        Vector3 fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
         float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength();
+        float maxLength = rope.getRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {

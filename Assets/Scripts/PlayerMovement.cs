@@ -3,11 +3,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
-    [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float WalkingSpeed = 5;
     [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private float MovementForce = 10f;
@@ -53,7 +54,6 @@ public class PlayerMovement : MonoBehaviour
             rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
             rigidBody.useGravity = false;
             isClimbing = true;
-            Debug.Log("Climbing ladder");
         }
     }
     void OnTriggerExit(Collider other)
@@ -63,8 +63,6 @@ public class PlayerMovement : MonoBehaviour
         {
             rigidBody.useGravity = true;
             isClimbing = false;
-            // rigidBody.AddForce(transform.forward, ForceMode.VelocityChange);
-            Debug.Log("Exited ladder");
         }
     }
 
@@ -76,8 +74,7 @@ public class PlayerMovement : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
         cameraTarget = transform.parent.GetChild(1);
-        cameraTarget.position = transform.position;
-        cameraTarget.rotation = transform.rotation;
+        cameraTarget.SetPositionAndRotation(transform.position, transform.rotation);
         rope = GetComponentInChildren<Rope>();
         isClimbing = false;
 
@@ -92,7 +89,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (isClimbing)
                 JumpOffLadder();
-            else if (canJump())
+            else if (CanJump())
                 Jump();
         }
         if (turnAction.WasPressedThisFrame())
@@ -126,15 +123,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private bool canJump()
+    private bool CanJump()
     {
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump()
-    {
-        rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
-    }
+    private void Jump() => rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
 
     private void JumpOffLadder() => rigidBody.AddForce(JumpForce * rigidBody.mass * -cameraTarget.forward, ForceMode.Impulse);
 
@@ -144,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
         var angleDegrees = lookAmount.x * 90f;
         cameraTarget.Rotate(0f, angleDegrees, 0f);
 
-        Quaternion targetRotation = cameraTarget.rotation;
+        var targetRotation = cameraTarget.rotation;
         rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
     }
 
@@ -165,23 +159,23 @@ public class PlayerMovement : MonoBehaviour
         var floorGrip = GetIcyFloorGrip();
         var gripSpeed = floorGrip == -1f ? 1f : floorGrip;
 
-        Vector3 targetVelocity = direction * WalkSpeed;
-        Vector3 currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
-        Vector3 velocityDiff = targetVelocity - currentHorizontalVelocity;
+        var targetVelocity = direction * WalkingSpeed;
+        var currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
+        var velocityDiff = targetVelocity - currentHorizontalVelocity;
 
         // The player should be heavier when swinging on the rope for better control
-        float massScale = (rope != null && rope.enabled && !canJump()) ? 1f : rigidBody.mass;
-        Vector3 force = velocityDiff * MovementForce * gripSpeed * massScale;
+        var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
+        var force = gripSpeed * massScale * MovementForce * velocityDiff;
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed
-        Vector3 clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
+        var clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
         rigidBody.linearVelocity = new Vector3(clampedVelocity.x, rigidBody.linearVelocity.y, clampedVelocity.z);
 
         // Only rotate when there's input
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            var targetRotation = Quaternion.LookRotation(direction);
             rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
         }
     }
@@ -197,16 +191,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void EnforceRopeConstraint()
     {
-        Vector3 fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
-        float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength() + 0.5f;
+        var fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
+        var dist = fromAnchor.magnitude;
+        var maxLength = rope.getRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {
             rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
 
-            Vector3 v = rigidBody.linearVelocity;
-            float outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
+            var v = rigidBody.linearVelocity;
+            var outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
 
             if (outwardSpeed > 0f)
             {

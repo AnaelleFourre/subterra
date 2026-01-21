@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -7,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private float MovementForce = 10f;
     [SerializeField] private float MaxSpeed = 10f;
@@ -20,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private Transform cameraTarget; // used rotate player model without moving camera
     private Rope rope;
     private Vector3 currentVelocity;
+    private bool isClimbing;
 
     // ANIMATION ADD
     private Animator animator;
@@ -43,6 +46,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
+            rigidBody.useGravity = false;
+            isClimbing = true;
+            Debug.Log("Climbing ladder");
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            rigidBody.useGravity = true;
+            isClimbing = false;
+            // rigidBody.AddForce(transform.forward, ForceMode.VelocityChange);
+            Debug.Log("Exited ladder");
+        }
+    }
+
     private void Awake()
     {
         moveAction = InputSystem.actions.FindAction("Move");
@@ -54,6 +79,7 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
         cameraTarget.rotation = transform.rotation;
         rope = GetComponentInChildren<Rope>();
+        isClimbing = false;
 
         // ANIMATION ADD
         animator = GetComponentInChildren<Animator>();
@@ -62,9 +88,12 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         moveAmount = moveAction.ReadValue<Vector2>();
-        if (jumpAction.WasPressedThisFrame() && canJump())
+        if (jumpAction.WasPressedThisFrame())
         {
-            Jump();
+            if (isClimbing)
+                JumpOffLadder();
+            else if (canJump())
+                Jump();
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -77,7 +106,17 @@ public class PlayerMovement : MonoBehaviour
         if (rope.enabled)
             EnforceRopeConstraint();
 
-        Walk();
+        if (isClimbing)
+        {
+            if (moveAmount != Vector2.zero)
+                Climb();
+        }
+        else
+        {
+            Walk();
+        }
+
+        // In FixedUpdate => cameraTarget follows rigidBody even while jumping or falling
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
@@ -97,32 +136,34 @@ public class PlayerMovement : MonoBehaviour
         rigidBody.AddForce(JumpForce * rigidBody.mass * Vector3.up, ForceMode.Impulse);
     }
 
+    private void JumpOffLadder() => rigidBody.AddForce(JumpForce * rigidBody.mass * -cameraTarget.forward, ForceMode.Impulse);
+
     private void Turn()
     {
         var lookAmount = turnAction.ReadValue<Vector2>();
         var angleDegrees = lookAmount.x * 90f;
         cameraTarget.Rotate(0f, angleDegrees, 0f);
-        
+
         Quaternion targetRotation = cameraTarget.rotation;
         rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
+    }
+
+    // If we're stepping on ice then return an IcyFloor.Grip, else return -1
+    private float GetIcyFloorGrip()
+    {
+        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore);
+        foreach (var hitCollider in hitColliders)
+            if (hitCollider.TryGetComponent<IcyFloor>(out var icyFloor))
+                return icyFloor.Grip;
+        return -1f;
     }
 
     private void Walk()
     {
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        float gripSpeed = 1.0f;
 
-        if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
-        {
-            foreach (var hit in hits)
-            {
-                if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
-                {
-                    gripSpeed = icyFloor.Grip;
-                    break;
-                }
-            }
-        }
+        var floorGrip = GetIcyFloorGrip();
+        var gripSpeed = floorGrip == -1f ? 1f : floorGrip;
 
         Vector3 targetVelocity = direction * WalkSpeed;
         Vector3 currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
@@ -144,6 +185,15 @@ public class PlayerMovement : MonoBehaviour
             rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
         }
     }
+
+    private void Climb()
+    {
+        // Move
+        var direction = (moveAmount.y * cameraTarget.up + moveAmount.x * cameraTarget.right).normalized;
+        var deltaPosition = ClimbingSpeed * Time.deltaTime * direction;
+        rigidBody.MovePosition(rigidBody.position + deltaPosition);
+    }
+
 
     private void EnforceRopeConstraint()
     {

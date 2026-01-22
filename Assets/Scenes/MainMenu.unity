@@ -511,7 +511,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 55
   InputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  WalkSpeed: 5
+  WalkingSpeed: 5
+  ClimbingSpeed: 3.5
   JumpForce: 5
   MovementForce: 10
   MaxSpeed: 10
@@ -3353,11 +3354,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c543c9e1984c164b92e07f14358331b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  link: {fileID: -2432090755550338912, guid: 6b0188350fb667a4788c2293274a6203, type: 3}
+  link: {fileID: 1006625679231885655, guid: 9e0be87d4d7e7864ba46b0f60a5bf8d6, type: 3}
   linkMaterial: {fileID: 2100000, guid: ab64b5f35d518644d837a1e2c248c571, type: 2}
   nodeDistance: 0.1
   nodeColliderRadius: 0.2
-  ropeWidth: 0.1
+  ropeWidth: 0.06
   collisionMask:
     serializedVersion: 2
     m_Bits: 1
@@ -3365,7 +3366,7 @@ MonoBehaviour:
   velocityDampen: 0.99
   stiffness: 0.95
   iterateCollisionsEvery: 10
-  iterations: 10
+  iterations: 100
   attachedRigidbody: {fileID: 51151034}
   pullForceStrength: 1000
   pullThreshold: 0.95
@@ -3437,7 +3438,7 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.8805031, g: 0.8144095, b: 0.2741188, a: 1}
+      key0: {r: 0.33333334, g: 0.27058825, b: 0.14509805, a: 1}
       key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
@@ -3445,7 +3446,7 @@ LineRenderer:
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
-      ctime0: 0
+      ctime0: 65535
       ctime1: 65535
       ctime2: 0
       ctime3: 0

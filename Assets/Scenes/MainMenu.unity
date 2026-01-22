@@ -1505,7 +1505,7 @@ Transform:
   m_GameObject: {fileID: 303537640}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3, z: 4}
+  m_LocalPosition: {x: -0.2, y: 0.41, z: 0.29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2246,7 +2246,7 @@ Transform:
   m_GameObject: {fileID: 843503533}
   serializedVersion: 2
   m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
-  m_LocalPosition: {x: -0.3, y: 10.7, z: -54.84232}
+  m_LocalPosition: {x: -0.389, y: 10.872, z: -54.765}
   m_LocalScale: {x: 0.1, y: 0.38, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3356,9 +3356,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   link: {fileID: 1006625679231885655, guid: 9e0be87d4d7e7864ba46b0f60a5bf8d6, type: 3}
   linkMaterial: {fileID: 2100000, guid: ab64b5f35d518644d837a1e2c248c571, type: 2}
-  nodeDistance: 0.1
+  nodeDistance: 0.05
   nodeColliderRadius: 0.2
-  ropeWidth: 0.06
+  ropeWidth: 0.04
   collisionMask:
     serializedVersion: 2
     m_Bits: 1
@@ -3366,9 +3366,9 @@ MonoBehaviour:
   velocityDampen: 0.99
   stiffness: 0.95
   iterateCollisionsEvery: 10
-  iterations: 100
+  iterations: 50
   attachedRigidbody: {fileID: 51151034}
-  pullForceStrength: 1000
+  pullForceStrength: 1500
   pullThreshold: 0.95
 --- !u!120 &1389056601
 LineRenderer:

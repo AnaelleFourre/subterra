@@ -53,6 +53,9 @@ public class Rope : MonoBehaviour
     public void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.useWorldSpace = true;
+        lineRenderer.positionCount = 0;
+
         enabled = false;
 
         raycastHitBuffer = new RaycastHit[colliderBufferSize];
@@ -79,6 +82,9 @@ public class Rope : MonoBehaviour
 
         float dist = Vector3.Distance(ropeStart, ropeEnd);
         totalNodes = Mathf.CeilToInt(dist / nodeDistance) - 1;
+
+        // Clamp to at least 2 nodes to avoid divide-by-zero.
+        totalNodes = Mathf.Max(2, totalNodes);
 
         currentNodePositions = new Vector3[totalNodes];
         previousNodePositions = new Vector3[totalNodes];
@@ -300,7 +306,7 @@ public class Rope : MonoBehaviour
     {
         for (int i = 0; i < totalNodes; i++)
         {
-            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], new Vector3(10 * nodeDistance, 2 * nodeDistance, 10 * nodeDistance));
+            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], new Vector3(20 * nodeDistance, 2 * nodeDistance, 20 * nodeDistance));
         }
     }
 

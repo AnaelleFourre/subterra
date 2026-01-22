@@ -511,7 +511,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 55
   InputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  WalkSpeed: 5
+  WalkingSpeed: 5
+  ClimbingSpeed: 3.5
   JumpForce: 5
   MovementForce: 10
   MaxSpeed: 10

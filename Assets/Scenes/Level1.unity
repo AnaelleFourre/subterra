@@ -16980,6 +16980,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointB: {x: 10, y: 0, z: 0}
   speed: 2
+  pauseDuration: 3
 --- !u!65 &508990586
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -44139,6 +44140,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointB: {x: 10, y: 0, z: 0}
   speed: 2
+  pauseDuration: 3
 --- !u!54 &1361006424
 Rigidbody:
   m_ObjectHideFlags: 0

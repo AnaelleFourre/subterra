@@ -7,56 +7,44 @@ using System;
 [RequireComponent(typeof(LineRenderer))]
 public class Rope : MonoBehaviour
 {
-    [Header("Instanced Mesh Details")]
-    [SerializeField, Tooltip("The Mesh of chain link to render")] Mesh link;
-    [SerializeField, Tooltip("The chain link material, must have gpu instancing enabled!")] Material linkMaterial;
+    [SerializeField] Mesh link;
+    [SerializeField] Material linkMaterial;
 
-    [Space]
+    [SerializeField] float nodeDistance = 0.1f;
+    [SerializeField] float nodeColliderRadius = 0.2f;
+    [SerializeField] float ropeWidth = 0.1f;
+    [SerializeField] LayerMask collisionMask = ~0; // All layers by default
+    int totalNodes;
 
-    [Header("Verlet Parameters")]
+    [SerializeField] float gravityStrength = 2;
+    [SerializeField] float velocityDampen = 0.1f;
+    [SerializeField] float stiffness = 0.95f;
 
-    [SerializeField, Tooltip("The distance between each link in the chain")] float nodeDistance = 0.1f;
-    [SerializeField, Tooltip("The radius of the sphere collider used for each chain link")] float nodeColliderRadius = 0.2f;
-
-    [SerializeField, Tooltip("Works best with a lower value")] float gravityStrength = 2;
-
-    [SerializeField, Range(0, 1), Tooltip("Modifier to dampen velocity so the simulation can stabilize")] float velocityDampen = 0.1f;
-
-    [SerializeField, Range(0, 0.99f), Tooltip("The stiffness of the simulation. Set to lower values for more elasticity")] float stiffness = 0.95f;
-
-    [SerializeField, Tooltip("Setting this will test collisions for every n iterations. Possibly more performance but less stable collisions")] int iterateCollisionsEvery = 10;
-
-    [SerializeField, Tooltip("Iterations for the simulation. More iterations is more expensive but more stable")] int iterations = 100;
-
-    [SerializeField, Tooltip("How many colliders to test against for every node.")] int colliderBufferSize = 1;
-
+    [SerializeField] int iterateCollisionsEvery = 10;
+    [SerializeField] int iterations = 100;
+    int colliderBufferSize = 1;
     RaycastHit[] raycastHitBuffer;
     Collider[] colliderHitBuffer;
     Camera cam;
 
-    // Need a better way of stepping through collisions for high Gravity
-    // And high Velocity
+
+    [SerializeField] Rigidbody attachedRigidbody;
+    [SerializeField] float pullForceStrength = 800f;
+    [SerializeField] float pullThreshold = 0.95f;
+
     Vector3 gravity;
 
     Vector3 ropeStart;
     Vector3 ropeEnd;
     Transform gunTip;
 
-    public int totalNodes = 100;
 
-    [Space]
-
-    // For Debug Drawing the chain/rope
-    [Header("Line Renderer")]
-    [SerializeField, Tooltip("Width for the line renderer")] float ropeWidth = 0.1f;
+    Vector3[] previousNodePositions;
+    Vector3[] currentNodePositions;
+    Quaternion[] currentNodeRotations;
 
     LineRenderer lineRenderer;
     Vector3[] linePositions;
-
-    Vector3[] previousNodePositions;
-
-    public Vector3[] currentNodePositions;
-    Quaternion[] currentNodeRotations;
 
     SphereCollider nodeCollider;
     GameObject nodeTester;
@@ -85,13 +73,12 @@ public class Rope : MonoBehaviour
 
     public void initRope(Transform start, Vector3 endPoint)
     {
-
         gunTip = start;
         ropeStart = gunTip.position;
         ropeEnd = endPoint;
 
         float dist = Vector3.Distance(ropeStart, ropeEnd);
-        totalNodes = Mathf.CeilToInt(dist / nodeDistance);
+        totalNodes = Mathf.CeilToInt(dist / nodeDistance) - 1;
 
         currentNodePositions = new Vector3[totalNodes];
         previousNodePositions = new Vector3[totalNodes];
@@ -99,24 +86,23 @@ public class Rope : MonoBehaviour
 
         matrices = new Matrix4x4[totalNodes];
 
-        Vector3 startPosition = Vector3.zero;
         for (int i = 0; i < totalNodes; i++)
         {
+            float t = (float)i / (totalNodes - 1);
+            Vector3 position = Vector3.Lerp(ropeStart, ropeEnd, t);
 
-            currentNodePositions[i] = startPosition;
+            currentNodePositions[i] = position;
             currentNodeRotations[i] = Quaternion.identity;
-
-            previousNodePositions[i] = startPosition;
-
-            matrices[i] = Matrix4x4.TRS(startPosition, Quaternion.identity, Vector3.one);
-
-            startPosition.y -= nodeDistance;
-
+            previousNodePositions[i] = position;
+            matrices[i] = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
         }
 
-        // for line renderer data
         linePositions = new Vector3[totalNodes];
+    }
 
+    public void SetAttachedRigidbody(Rigidbody rb)
+    {
+        attachedRigidbody = rb;
     }
 
     public float getRopeLength()
@@ -143,6 +129,11 @@ public class Rope : MonoBehaviour
         return ropeEnd;
     }
 
+    public Vector3 getRopeStart()
+    {
+        return ropeStart;
+    }
+
     void Update()
     {
         if (isActiveAndEnabled == false) return;
@@ -152,7 +143,6 @@ public class Rope : MonoBehaviour
 
         DrawRope();
 
-        // Instanced drawing here is really performant over using GameObjects
         Graphics.DrawMeshInstanced(link, 0, linkMaterial, matrices, totalNodes);
     }
 
@@ -177,8 +167,38 @@ public class Rope : MonoBehaviour
             }
         }
 
+        ApplyPullForce();
         SetAngles();
         TranslateMatrices();
+    }
+
+    private void ApplyPullForce()
+    {
+        if (attachedRigidbody == null) return;
+
+        Vector3 toGrapplePoint = ropeEnd - ropeStart;
+        float currentDistance = toGrapplePoint.magnitude;
+        float maxRopeLength = getRopeLength();
+
+        if (currentDistance > maxRopeLength * pullThreshold)
+        {
+            float overstretch = currentDistance - (maxRopeLength * pullThreshold);
+            float stretchRatio = overstretch / maxRopeLength;
+
+            Vector3 pullDirection = toGrapplePoint.normalized;
+
+            Vector3 pullForce = pullDirection * (pullForceStrength * stretchRatio);
+            attachedRigidbody.AddForce(pullForce, ForceMode.Force);
+
+            Vector3 velocity = attachedRigidbody.linearVelocity;
+            float outwardVelocity = Vector3.Dot(velocity, pullDirection);
+
+            if (outwardVelocity < 0)
+            {
+                Vector3 dampingForce = -pullDirection * (outwardVelocity * 0.5f);
+                attachedRigidbody.AddForce(dampingForce, ForceMode.VelocityChange);
+            }
+        }
     }
 
     private void Simulate()
@@ -191,7 +211,6 @@ public class Rope : MonoBehaviour
 
             previousNodePositions[i] = currentNodePositions[i];
 
-            // calculate new position
             Vector3 newPos = currentNodePositions[i] + velocity;
             newPos += gravity * fixedDt;
             Vector3 direction = currentNodePositions[i] - newPos;
@@ -207,26 +226,20 @@ public class Rope : MonoBehaviour
             if (i % 2 == 0) continue;
 
             int result = -1;
-            result = Physics.OverlapSphereNonAlloc(currentNodePositions[i], nodeColliderRadius + 0.01f, colliderHitBuffer, ~(1 << 8));
+            result = Physics.OverlapSphereNonAlloc(currentNodePositions[i], nodeColliderRadius + 0.01f, colliderHitBuffer, collisionMask);
 
-            // if (result > 0)
-            // {
             for (int n = 0; n < result; n++)
             {
-                // if (colliderHitBuffer[n].gameObject.layer != 8)
-                {
-                    Vector3 colliderPosition = colliderHitBuffer[n].transform.position;
-                    Quaternion colliderRotation = colliderHitBuffer[n].gameObject.transform.rotation;
+                Vector3 colliderPosition = colliderHitBuffer[n].transform.position;
+                Quaternion colliderRotation = colliderHitBuffer[n].gameObject.transform.rotation;
 
-                    Vector3 dir;
-                    float distance;
+                Vector3 dir;
+                float distance;
 
-                    Physics.ComputePenetration(nodeCollider, currentNodePositions[i], Quaternion.identity, colliderHitBuffer[n], colliderPosition, colliderRotation, out dir, out distance);
+                Physics.ComputePenetration(nodeCollider, currentNodePositions[i], Quaternion.identity, colliderHitBuffer[n], colliderPosition, colliderRotation, out dir, out distance);
 
-                    currentNodePositions[i] += dir * distance;
-                }
+                currentNodePositions[i] += dir * distance;
             }
-            // }
         }
     }
 
@@ -330,7 +343,7 @@ public class Rope : MonoBehaviour
         }
         else
         {
-            for (int i = 0; i < totalNodes - 1; i++)
+            for (int i = 0; i < totalNodes -1; i++)
             {
                 currentNodePositions[i] = currentNodePositions[i + 1];
                 previousNodePositions[i] = previousNodePositions[i + 1];
@@ -345,5 +358,10 @@ public class Rope : MonoBehaviour
             Array.Resize(ref matrices, totalNodes);
             Array.Resize(ref linePositions, totalNodes);
         }
+    }
+
+    public int getTotalNodes()
+    {
+               return totalNodes;
     }
 }

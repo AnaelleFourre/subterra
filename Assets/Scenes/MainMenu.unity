@@ -3537,10 +3537,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 850dfad9776dca744b3af9f1f062c311, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cassetteClip: {fileID: 0}
-  extensionClip: {fileID: 0}
-  balancierClip: {fileID: 0}
-  feet: {fileID: 0}
+  cassetteClip: {fileID: 8300000, guid: b4687c04a48db88e59915023c4fb1f55, type: 3}
+  extensionClip: {fileID: 8300000, guid: 62dce3a2d56d02f2e98586e896d9191f, type: 3}
+  balancierClip: {fileID: 8300000, guid: feb7b16393dc273958a49bb68221717c, type: 3}
+  feet: {fileID: 1928948454}
   groundLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -10026,8 +10026,8 @@ MonoBehaviour:
   WalkingSpeed: 5
   ClimbingSpeed: 3.5
   JumpForce: 5
-  jumpClip: {fileID: 0}
-  iceClip: {fileID: 0}
+  jumpClip: {fileID: 8300000, guid: 7195e694af375c146bb17e59c4d47310, type: 3}
+  iceClip: {fileID: 8300000, guid: 1af41d1ca60bf14ce947fd4ffe4814f7, type: 3}
   MovementForce: 10
   MaxSpeed: 10
   RotationSpeed: 10

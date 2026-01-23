@@ -8,9 +8,10 @@ public class Timer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     private float timeRemaining;
 
-    void Start()
+    void Awake()
     {
         timeRemaining = startTime;
+        Debug.Log(startTime + " " + timeRemaining);
     }
 
     void Update()

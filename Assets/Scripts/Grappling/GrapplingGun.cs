@@ -150,51 +150,26 @@ public class GrapplingGun : MonoBehaviour
             return; // Bloque toute action pendant la pause
         }
 
-        if(!isGrappling || !isClimbing || rope.totalNodes<2)
+        if(!isGrappling || !isClimbing || rope.getTotalNodes() <2)
         {
             return;
         }
+ 
+
+        if (!isPaused)
+        {
+            rope.RemoveFirstNode();
+            nodesRemovedSincePause++;
+
+            if (nodesRemovedSincePause >= 3)
+            {
+                isPaused = true;
+                pauseTimer = pauseDuration;
+                nodesRemovedSincePause = 0;
+
+            }
+        }
         
-        if (climbSoundTimer <= 0)
-        {
-            SoundFXManager.instance.PlaySoundFXClip(extensionClip, transform, 0.5f);
-            
-            climbSoundTimer = extensionClip.length; 
-        }
-
-        Vector3 firstNode = rope.currentNodePositions[0];
-        Vector3 secondNode = rope.currentNodePositions[1];
-
-        // Direction du segment actuel
-        Vector3 segmentDirection = (secondNode - firstNode).normalized;
-
-        float distanceToSecondNode = Vector3.Distance(gunTip.position, secondNode);
-        if (distanceToSecondNode < 0.2f)
-        {
-            if (!isPaused)
-            {
-                rope.RemoveFirstNode();
-                nodesRemovedSincePause++;
-
-                if (nodesRemovedSincePause >= 5)
-                {
-                    isPaused = true;
-                    pauseTimer = pauseDuration;
-                    nodesRemovedSincePause = 0;
-
-                    playerRigidbody.linearVelocity = Vector3.zero;
-                    playerRigidbody.useGravity = true;
-                }
-            }
-        }
-        else
-        {
-            if (!isPaused && nodesRemovedSincePause < 5)
-            {
-                playerRigidbody.useGravity = false;
-                playerRigidbody.AddForce(segmentDirection * pullSpeed, ForceMode.Acceleration);
-            }
-        }
     }
 
     void StopGrapple()

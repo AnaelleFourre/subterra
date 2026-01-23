@@ -1,16 +1,22 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
     [SerializeField] private InputActionAsset InputActions;
-    [SerializeField] private float WalkSpeed = 5;
+    [SerializeField] private float WalkingSpeed = 5;
+    [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip iceClip;
+    [SerializeField] private float MovementForce = 10f;
+    [SerializeField] private float MaxSpeed = 10f;
+    [SerializeField] private float RotationSpeed = 10f;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction turnAction;
@@ -24,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool isGrounded;
     private float soundTimer = 0f;
+    private bool isClimbing;
 
     // ANIMATION ADD
     private Animator animator;
@@ -47,6 +54,28 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
+            rigidBody.useGravity = false;
+            isClimbing = true;
+        }
+    }
+    void OnTriggerExit(Collider other)
+    {
+
+        if (other.gameObject.CompareTag("Ladder"))
+        {
+            const float LadderExitSpeed = 5f;
+            var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
+            rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
+            rigidBody.useGravity = true;
+            isClimbing = false;
+        }
+    }
+
     private void Awake()
     {
         moveAction = InputSystem.actions.FindAction("Move");
@@ -55,9 +84,9 @@ public class PlayerMovement : MonoBehaviour
         rigidBody = GetComponent<Rigidbody>();
         feetTransform = gameObject.transform.GetChild(0);
         cameraTarget = transform.parent.GetChild(1);
-        cameraTarget.position = transform.position;
-        cameraTarget.rotation = transform.rotation;
+        cameraTarget.SetPositionAndRotation(transform.position, transform.rotation);
         rope = GetComponentInChildren<Rope>();
+        isClimbing = false;
 
         // ANIMATION ADD
         animator = GetComponentInChildren<Animator>();
@@ -66,10 +95,12 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         moveAmount = moveAction.ReadValue<Vector2>();
-        if (jumpAction.WasPressedThisFrame() && canJump())
+        if (jumpAction.WasPressedThisFrame())
         {
-            Jump();
-            SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 1f);
+            if (isClimbing)
+                JumpOffLadder();
+            else if (CanJump())
+                Jump();
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -82,9 +113,17 @@ public class PlayerMovement : MonoBehaviour
         if (rope.enabled)
             EnforceRopeConstraint();
 
-        Walk();
+        if (isClimbing)
+        {
+            if (moveAmount != Vector2.zero)
+                Climb();
+        }
+        else
+        {
+            Walk();
+        }
 
-        // Put this in FixedUpdate so that cameraTarget follows rigidBody even while jumping / falling
+        // In FixedUpdate => cameraTarget follows rigidBody even while jumping or falling
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
@@ -94,47 +133,48 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private bool canJump()
+    private bool CanJump()
     {
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump()
-    {
-        rigidBody.AddForceAtPosition(JumpForce * Vector3.up, Vector3.zero, ForceMode.Impulse);
-    }
+    private void Jump() => rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
+
+    private void JumpOffLadder() => rigidBody.AddForce(JumpForce * -cameraTarget.forward, ForceMode.VelocityChange);
 
     private void Turn()
     {
         var lookAmount = turnAction.ReadValue<Vector2>();
         var angleDegrees = lookAmount.x * 90f;
         cameraTarget.Rotate(0f, angleDegrees, 0f);
-        rigidBody.MoveRotation(cameraTarget.rotation);
+
+        var targetRotation = cameraTarget.rotation;
+        rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
+    }
+
+    // If we're stepping on ice then return an IcyFloor.Grip, else return -1
+    private float GetIcyFloorGrip()
+    {
+        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore);
+        foreach (var hitCollider in hitColliders)
+            if (hitCollider.TryGetComponent<IcyFloor>(out var icyFloor))
+                return icyFloor.Grip;
+        return -1f;
     }
 
     private void Walk()
     {
         var direction = (moveAmount.y * cameraTarget.forward + moveAmount.x * cameraTarget.right).normalized;
-        var targetVelocity = direction * WalkSpeed;
-        float gripSpeed = 50f;
 
-        if (Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore) is Collider[] hits)
-        {
-            foreach (var hit in hits)
-            {
-                if (hit.TryGetComponent<IcyFloor>(out var icyFloor))
-                {
-                    gripSpeed = icyFloor.Grip;
-                    break;
-                }
-            }
-        }
+        var floorGrip = GetIcyFloorGrip();
+        var gripSpeed = floorGrip == -1f ? 1f : floorGrip;
 
         if (soundTimer > 0)
         {
             soundTimer -= Time.deltaTime;
         }
-        if (gripSpeed == 0.3f) { // 0.3f c'est icyFloor.Grip
+
+        if (gripSpeed != 1f) {
             isGrounded = Physics.CheckSphere(feetTransform.position, 0.2f, groundLayer); // radius of 0.2f
             if (!isGrounded && soundTimer <= 0)
             {
@@ -143,31 +183,48 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        currentVelocity = Vector3.Lerp(currentVelocity, targetVelocity, gripSpeed * Time.fixedDeltaTime);
-        if (currentVelocity.magnitude > 0.01f)
+        var targetVelocity = direction * WalkingSpeed;
+        var currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
+        var velocityDiff = targetVelocity - currentHorizontalVelocity;
+
+        // The player should be heavier when swinging on the rope for better control
+        var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
+        var force = gripSpeed * massScale * MovementForce * velocityDiff;
+        rigidBody.AddForce(force, ForceMode.Force);
+
+        // Clamp max speed
+        var clampedVelocity = Vector3.ClampMagnitude(currentHorizontalVelocity, MaxSpeed);
+        rigidBody.linearVelocity = new Vector3(clampedVelocity.x, rigidBody.linearVelocity.y, clampedVelocity.z);
+
+        // Only rotate when there's input
+        if (direction != Vector3.zero)
         {
-            rigidBody.MovePosition(rigidBody.position + currentVelocity * Time.deltaTime);
-            if (direction != Vector3.zero)
-            {
-                var deltaRotation = direction == -transform.forward ? Quaternion.Euler(0f, 180f, 0f)
-                                                                    : Quaternion.FromToRotation(transform.forward, direction);
-                rigidBody.MoveRotation(rigidBody.rotation * deltaRotation);
-            }
+            var targetRotation = Quaternion.LookRotation(direction);
+            rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
         }
     }
 
+    private void Climb()
+    {
+        // Move
+        var direction = (moveAmount.y * cameraTarget.up + moveAmount.x * cameraTarget.right).normalized;
+        var deltaPosition = ClimbingSpeed * Time.deltaTime * direction;
+        rigidBody.MovePosition(rigidBody.position + deltaPosition);
+    }
+
+
     private void EnforceRopeConstraint()
     {
-        Vector3 fromAnchor = rigidBody.position - rope.getGrapplePoint();
-        float dist = fromAnchor.magnitude;
-        float maxLength = rope.getRopeLength();
+        var fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
+        var dist = fromAnchor.magnitude;
+        var maxLength = rope.getRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {
             rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
 
-            Vector3 v = rigidBody.linearVelocity;
-            float outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
+            var v = rigidBody.linearVelocity;
+            var outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
 
             if (outwardSpeed > 0f)
             {

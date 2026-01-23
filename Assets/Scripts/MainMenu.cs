@@ -6,7 +6,7 @@ using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
-    private const string Level1SceneName = "Level1-remake";
+    private const string Level1SceneName = "Level0";
     [Header("Scene Dropdown")]
     public TMP_Dropdown sceneDropdown;
 

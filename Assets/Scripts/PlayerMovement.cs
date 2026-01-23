@@ -138,7 +138,10 @@ public class PlayerMovement : MonoBehaviour
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump() => rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
+    private void Jump() {
+        SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
+        rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
+    }
 
     private void JumpOffLadder() => rigidBody.AddForce(JumpForce * -cameraTarget.forward, ForceMode.VelocityChange);
 

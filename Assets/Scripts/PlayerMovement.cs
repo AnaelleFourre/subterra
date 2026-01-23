@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private float soundTimer = 0f;
     private bool isClimbing;
+    private bool lockAnimation = false;
 
     // ANIMATION ADD
     private Animator animator;
@@ -127,9 +128,14 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.position = transform.position;
 
         // ANIMATION ADD
-        if (animator != null)
+        if (animator != null && !lockAnimation)
         {
-            animator.SetFloat("Speed", currentVelocity.magnitude);
+            Vector3 horizontalVelocity = new Vector3(
+                rigidBody.linearVelocity.x,
+                0f,
+                rigidBody.linearVelocity.z
+            );
+            animator.SetFloat("Speed", horizontalVelocity.magnitude);
         }
     }
 
@@ -138,7 +144,8 @@ public class PlayerMovement : MonoBehaviour
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
     }
 
-    private void Jump() {
+    private void Jump()
+    {
         SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
         rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
     }
@@ -177,7 +184,8 @@ public class PlayerMovement : MonoBehaviour
             soundTimer -= Time.deltaTime;
         }
 
-        if (gripSpeed != 1f) {
+        if (gripSpeed != 1f)
+        {
             isGrounded = Physics.CheckSphere(feetTransform.position, 0.2f, groundLayer); // radius of 0.2f
             if (!isGrounded && soundTimer <= 0)
             {
@@ -236,11 +244,20 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void ResetAnimationSpeed()
+    public void LockWalkAnimation()
     {
+        lockAnimation = true;
         if (animator != null)
         {
             animator.SetFloat("Speed", 0f);
         }
+        moveAmount = Vector2.zero;
+        rigidBody.isKinematic = true;
+    }
+
+    public void UnlockWalkAnimation()
+    {
+        lockAnimation = false;
+        rigidBody.isKinematic = false;
     }
 }

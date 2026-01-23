@@ -41,7 +41,7 @@ public class SceneLoader : MonoBehaviour
         var playerMovement = FindAnyObjectByType<PlayerMovement>();
         if (playerMovement)
         {
-            playerMovement.ResetAnimationSpeed();
+            playerMovement.LockWalkAnimation();
             playerMovement.enabled = false;
         }
 
@@ -52,6 +52,7 @@ public class SceneLoader : MonoBehaviour
 
         if (playerMovement)
         {
+            playerMovement.UnlockWalkAnimation();
             playerMovement.enabled = true;
         }
 

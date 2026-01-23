@@ -61,7 +61,7 @@ public class DoorManager : MonoBehaviour
     {
         if (playerControls != null)
         {
-            playerControls.ResetAnimationSpeed();
+            playerControls.LockWalkAnimation();
             playerControls.enabled = false;
         }
 
@@ -77,6 +77,7 @@ public class DoorManager : MonoBehaviour
     {
         if (playerControls != null)
         {
+            playerControls.UnlockWalkAnimation();
             playerControls.enabled = true;
         }
 

@@ -31,12 +31,18 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void ShowDialogue()
+    public void ShowDialogue(GameObject boxToShow)
     {
-        if (dialogueBox == null) return;
+        if (dialogueBox != null && dialogueBox.activeSelf)
+            dialogueBox.SetActive(false);
 
-        dialogueBox.SetActive(true);
-        isDialogueActive = true;
+        dialogueBox = boxToShow;
+        
+        if (dialogueBox != null)
+        {
+            dialogueBox.SetActive(true);
+            isDialogueActive = true;
+        }
     }
 
     public void HideDialogue()

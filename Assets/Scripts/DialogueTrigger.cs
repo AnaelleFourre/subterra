@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class DialogueTrigger : MonoBehaviour
 {
+    public GameObject dialogueBox;
+    
     private bool hasTriggered = false;
 
     private void OnTriggerEnter(Collider other)
@@ -10,9 +12,9 @@ public class DialogueTrigger : MonoBehaviour
 
         if (other.CompareTag("Player") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player")))
         {
-            if (DialogueManager.Instance != null)
+            if (DialogueManager.Instance != null && dialogueBox != null)
             {
-                DialogueManager.Instance.ShowDialogue();
+                DialogueManager.Instance.ShowDialogue(dialogueBox);
                 hasTriggered = true;
             }
         }

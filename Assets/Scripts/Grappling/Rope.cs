@@ -53,6 +53,9 @@ public class Rope : MonoBehaviour
     public void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.useWorldSpace = true;
+        lineRenderer.positionCount = 0;
+
         enabled = false;
 
         raycastHitBuffer = new RaycastHit[colliderBufferSize];
@@ -79,6 +82,9 @@ public class Rope : MonoBehaviour
 
         float dist = Vector3.Distance(ropeStart, ropeEnd);
         totalNodes = Mathf.CeilToInt(dist / nodeDistance) - 1;
+
+        // Clamp to at least 2 nodes to avoid divide-by-zero.
+        totalNodes = Mathf.Max(2, totalNodes);
 
         currentNodePositions = new Vector3[totalNodes];
         previousNodePositions = new Vector3[totalNodes];
@@ -287,27 +293,12 @@ public class Rope : MonoBehaviour
             var dir = (node2 - node1).normalized;
             if (dir != Vector3.zero)
             {
-                if (i > 0)
-                {
-                    Quaternion desiredRotation = Quaternion.LookRotation(dir, Vector3.right);
-                    currentNodeRotations[i + 1] = desiredRotation;
-                }
-                else if (i < totalNodes - 1)
-                {
-                    Quaternion desiredRotation = Quaternion.LookRotation(dir, Vector3.right);
-                    currentNodeRotations[i + 1] = desiredRotation;
-                }
-                else
-                {
-                    Quaternion desiredRotation = Quaternion.LookRotation(dir, Vector3.right);
-                    currentNodeRotations[i] = desiredRotation;
-                }
+                Quaternion desiredRotation = Quaternion.LookRotation(dir, Vector3.right) * Quaternion.Euler(90.0f, 0.0f, 0.0f);
+
+                currentNodeRotations[i] = desiredRotation;
+                currentNodeRotations[i + 1] = desiredRotation;
             }
 
-            if (i % 2 == 0 && i != 0)
-            {
-                currentNodeRotations[i + 1] *= Quaternion.Euler(0, 0, 90);
-            }
         }
     }
 
@@ -315,7 +306,7 @@ public class Rope : MonoBehaviour
     {
         for (int i = 0; i < totalNodes; i++)
         {
-            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], new Vector3(3 * nodeDistance, 3 * nodeDistance, 3 * nodeDistance));
+            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], new Vector3(20 * nodeDistance, 2 * nodeDistance, 20 * nodeDistance));
         }
     }
 
@@ -331,7 +322,6 @@ public class Rope : MonoBehaviour
         }
 
         lineRenderer.positionCount = linePositions.Length;
-        lineRenderer.startColor = Color.blue;
         lineRenderer.SetPositions(linePositions);
 
     }

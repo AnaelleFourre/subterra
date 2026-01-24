@@ -10034,7 +10034,7 @@ MonoBehaviour:
   RotationSpeed: 10
   groundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1
 --- !u!114 &2030125266
 MonoBehaviour:
   m_ObjectHideFlags: 0

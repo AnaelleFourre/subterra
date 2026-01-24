@@ -169,7 +169,7 @@ public class PlayerMovement : MonoBehaviour
     // If we're stepping on ice then return an IcyFloor.Grip, else return -1
     private float GetIcyFloorGrip()
     {
-        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask, QueryTriggerInteraction.Ignore);
+        var hitColliders = Physics.OverlapSphere(feetTransform.position, 0.2f, playerMask, QueryTriggerInteraction.Ignore);
         foreach (var hitCollider in hitColliders)
             if (hitCollider.TryGetComponent<IcyFloor>(out var icyFloor))
                 return icyFloor.Grip;
@@ -188,23 +188,31 @@ public class PlayerMovement : MonoBehaviour
             soundTimer -= Time.deltaTime;
         }
 
-        if (gripSpeed != 1f)
+        if (gripSpeed < 1f)
         {
-            isGrounded = Physics.CheckSphere(feetTransform.position, 0.2f, groundLayer); // radius of 0.2f
-            if (!isGrounded && soundTimer <= 0)
+            isGrounded = Physics.CheckSphere(feetTransform.position, 0.5f, groundLayer); // radius of 0.2f
+            if (isGrounded && soundTimer <= 0)
             {
                 SoundFXManager.instance.PlaySoundFXClip(iceClip, transform, 1f);
-                soundTimer = iceClip.length * 2; // joue le son une fois sur 2
+                soundTimer = iceClip.length;
             }
         }
 
         var targetVelocity = direction * WalkingSpeed;
         var currentHorizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
-        var velocityDiff = targetVelocity - currentHorizontalVelocity;
+        Vector3 force;
 
-        // The player should be heavier when swinging on the rope for better control
-        var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
-        var force = gripSpeed * massScale * MovementForce * velocityDiff;
+        if (gripSpeed < 1f && direction == Vector3.zero)
+        {
+            force = Vector3.zero; //glisse
+        }
+        else
+        {
+            var velocityDiff = targetVelocity - currentHorizontalVelocity;
+            var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
+            force = gripSpeed * massScale * MovementForce * velocityDiff;
+        }
+        
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed

@@ -57,23 +57,13 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Ladder"))
-        {
-            rigidBody.isKinematic = true; // disable physics
-            isClimbing = true;
-        }
+        if (other.gameObject.CompareTag("Ladder") && !isClimbing)
+            GetOnLadder();
     }
     void OnTriggerExit(Collider other)
     {
-
-        if (other.gameObject.CompareTag("Ladder"))
-        {
-            const float LadderExitSpeed = 5f;
-            rigidBody.isKinematic = false;
-            var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
-            rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
-            isClimbing = false;
-        }
+        if (other.gameObject.CompareTag("Ladder") && isClimbing)
+            GetOffLadder();
     }
 
     private void Awake()
@@ -121,6 +111,9 @@ public class PlayerMovement : MonoBehaviour
         {
             if (moveAmount != Vector2.zero)
                 Climb();
+            // climbing down and feet out of LadderCollider => get off ladder
+            if (moveAmount.y < 0f && Physics.OverlapSphere(feetTransform.position, 0.1f, ladderMask).Length == 0)
+                GetOffLadder();
         }
         else
         {
@@ -140,6 +133,21 @@ public class PlayerMovement : MonoBehaviour
             );
             animator.SetFloat("Speed", horizontalVelocity.magnitude);
         }
+    }
+
+    private void GetOnLadder()
+    {
+        rigidBody.isKinematic = true; // disable physics
+        isClimbing = true;
+    }
+
+    private void GetOffLadder()
+    {
+        const float LadderExitSpeed = 5f;
+        rigidBody.isKinematic = false;
+        var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
+        rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
+        isClimbing = false;
     }
 
     private bool CanJump()

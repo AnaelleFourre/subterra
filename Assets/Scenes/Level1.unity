@@ -37748,11 +37748,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.4571942
+      value: 1.041311
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3.8727
+      value: 3.238913
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalPosition.x
@@ -37760,11 +37760,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7
+      value: 7.5897007
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.1837
+      value: -2.0309
       objectReference: {fileID: 0}
     - target: {fileID: 7706951237467324250, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
       propertyPath: m_LocalRotation.w
@@ -37797,8 +37797,24 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5454279952937832033, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1164646005}
   m_SourcePrefab: {fileID: 100100000, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
+--- !u!1 &1164646004 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5454279952937832033, guid: 3f05c6d5cf54faebb85d7245cfb36559, type: 3}
+  m_PrefabInstance: {fileID: 1164646003}
+  m_PrefabAsset: {fileID: 0}
+--- !u!33 &1164646005
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164646004}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1001 &1164661646
 PrefabInstance:
   m_ObjectHideFlags: 0

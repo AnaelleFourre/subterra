@@ -6,6 +6,7 @@ using System.IO;
 
 public class MainMenu : MonoBehaviour
 {
+    private const string Level1SceneName = "Level0";
     [Header("Scene Dropdown")]
     public TMP_Dropdown sceneDropdown;
 
@@ -48,7 +49,7 @@ public class MainMenu : MonoBehaviour
         SaveData data = SaveManager.SlotData(number);
         if (data == null)
         {
-            SaveManager.InitSave("Save n°" + (number + 1), "Level1");
+            SaveManager.InitSave("Save n°" + (number + 1), Level1SceneName);
         }
         SaveManager.Load();
     }
@@ -57,7 +58,7 @@ public class MainMenu : MonoBehaviour
     {
         if (sceneDropdown == null || sceneNames.Count == 0)
         {
-            return "Level1";
+            return Level1SceneName;
         }
 
         return sceneNames[sceneDropdown.value];

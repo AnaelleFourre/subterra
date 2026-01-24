@@ -60,6 +60,7 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.CompareTag("Ladder") && !isClimbing)
             GetOnLadder();
     }
+
     void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("Ladder") && isClimbing)
@@ -113,7 +114,10 @@ public class PlayerMovement : MonoBehaviour
                 Climb();
             // climbing down and feet out of LadderCollider => get off ladder
             if (moveAmount.y < 0f && Physics.OverlapSphere(feetTransform.position, 0.1f, ladderMask).Length == 0)
+            {
                 GetOffLadder();
+                Debug.Log(Time.time + " AUTO GET OFF LADDER");
+            }
         }
         else
         {
@@ -137,16 +141,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void GetOnLadder()
     {
-        rigidBody.isKinematic = true; // disable physics
+        Debug.Log(Time.time + " ON LADDER");
+        rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
+        rigidBody.useGravity = false;
         isClimbing = true;
     }
 
     private void GetOffLadder()
     {
+        Debug.Log(Time.time + " OFF LADDER");
         const float LadderExitSpeed = 5f;
-        rigidBody.isKinematic = false;
         var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
         rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
+        rigidBody.useGravity = true;
         isClimbing = false;
     }
 

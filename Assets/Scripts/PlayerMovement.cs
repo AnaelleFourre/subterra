@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
+    [SerializeField] private LayerMask ladderMask;
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkingSpeed = 5;
     [SerializeField] private float ClimbingSpeed = 3.5f;

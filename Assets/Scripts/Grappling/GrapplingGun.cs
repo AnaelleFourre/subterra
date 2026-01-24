@@ -6,14 +6,14 @@ using UnityEngine.Rendering;
 using UnityEngine.Audio;
 
 public class GrapplingGun : MonoBehaviour
-{   
+{
     /// <summary>
     /// Gestion du grappin sans le rendu physique et implémentation de la mécanique de tirage de corde pour remonter.
     /// </summary>
     [SerializeField] private AudioClip cassetteClip;
     [SerializeField] private AudioClip extensionClip;
     [SerializeField] private AudioClip balancierClip;
-    public Transform feet;           
+    public Transform feet;
     public LayerMask groundLayer;
 
     private bool isGrounded;
@@ -26,6 +26,7 @@ public class GrapplingGun : MonoBehaviour
     private InputAction grappleAction;   // nouvelle action
     private InputAction pullRopeAction;   // nouvelle action
     private bool isGrappling = false;
+    private bool grappleAllowed = false;
 
     //Variables pour tirer sur la corde
     private bool isClimbing;
@@ -51,11 +52,11 @@ public class GrapplingGun : MonoBehaviour
         grappleAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/x");
         grappleAction.performed += GrappleManager; // Sans lambda
         grappleAction.Enable();
-        
+
         pullRopeAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/c");
         pullRopeAction.started += _ => isClimbing = true;
         pullRopeAction.canceled += _ => isClimbing = false;
-        pullRopeAction.canceled += _ => playerRigidbody.useGravity=true;
+        pullRopeAction.canceled += _ => playerRigidbody.useGravity = true;
         pullRopeAction.Enable();
 
     }
@@ -66,7 +67,8 @@ public class GrapplingGun : MonoBehaviour
         {
             balancierSoundTimer -= Time.deltaTime;
         }
-        if (isGrappling) {
+        if (isGrappling)
+        {
             isGrounded = Physics.CheckSphere(feet.position, 0.2f, groundLayer); // radius of 0.2f
             if (!isGrounded && balancierSoundTimer <= 0)
             {
@@ -92,7 +94,7 @@ public class GrapplingGun : MonoBehaviour
             if (pauseTimer <= 0f)
             {
                 isPaused = false;
-                pauseTimer=pauseDuration;
+                pauseTimer = pauseDuration;
             }
         }
     }
@@ -102,7 +104,7 @@ public class GrapplingGun : MonoBehaviour
         grappleAction.performed -= GrappleManager;
         pullRopeAction.started -= _ => isClimbing = true;
         pullRopeAction.canceled -= _ => isClimbing = false;
-        pullRopeAction.canceled -= _ => playerRigidbody.useGravity=true;
+        pullRopeAction.canceled -= _ => playerRigidbody.useGravity = true;
 
         grappleAction.Disable();
         pullRopeAction.Disable();
@@ -110,6 +112,11 @@ public class GrapplingGun : MonoBehaviour
 
     void GrappleManager(InputAction.CallbackContext context)
     {
+        if (!grappleAllowed)
+        {
+            return;
+        }
+
         isGrappling = !isGrappling;
         if (isGrappling)
         {
@@ -150,11 +157,11 @@ public class GrapplingGun : MonoBehaviour
             return; // Bloque toute action pendant la pause
         }
 
-        if(!isGrappling || !isClimbing || rope.getTotalNodes() <2)
+        if (!isGrappling || !isClimbing || rope.getTotalNodes() < 2)
         {
             return;
         }
- 
+
 
         if (!isPaused)
         {
@@ -169,7 +176,7 @@ public class GrapplingGun : MonoBehaviour
 
             }
         }
-        
+
     }
 
     void StopGrapple()
@@ -177,6 +184,26 @@ public class GrapplingGun : MonoBehaviour
 
         grapplePoint = gunTip.position;
         rope.enabled = false;
+    }
+
+    public void SetGrappleAllowed(bool value)
+    {
+        grappleAllowed = value;
+
+        if (!value)
+        {
+            ForceStopGrapple();
+        }
+    }
+    private void ForceStopGrapple()
+    {
+        isGrappling = false;
+        isClimbing = false;
+        isPaused = false;
+        nodesRemovedSincePause = 0;
+
+        if (rope != null)
+            rope.enabled = false;
     }
 
 }

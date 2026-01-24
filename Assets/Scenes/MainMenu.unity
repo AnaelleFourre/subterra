@@ -3200,6 +3200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cac42694508bb59458dbddb82cc00055, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  grapplingGun: {fileID: 728838858}
 --- !u!4 &528256433
 Transform:
   m_ObjectHideFlags: 0

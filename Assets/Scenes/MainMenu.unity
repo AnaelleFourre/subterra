@@ -10096,7 +10096,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -10169,8 +10169,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83163c0b482729647b40b6960eecb6a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
-  inputActions: {fileID: 0}
+  animator: {fileID: 2030125263}
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &2045019451
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -59,8 +58,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Ladder"))
         {
-            rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
-            rigidBody.useGravity = false;
+            rigidBody.isKinematic = true; // disable physics
             isClimbing = true;
         }
     }
@@ -70,9 +68,9 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.CompareTag("Ladder"))
         {
             const float LadderExitSpeed = 5f;
+            rigidBody.isKinematic = false;
             var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
             rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
-            rigidBody.useGravity = true;
             isClimbing = false;
         }
     }
@@ -212,7 +210,7 @@ public class PlayerMovement : MonoBehaviour
             var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
             force = gripSpeed * massScale * MovementForce * velocityDiff;
         }
-        
+
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed

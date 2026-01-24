@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     private float soundTimer = 0f;
     private bool isClimbing;
     private bool lockAnimation = false;
+    private MovingPlatform currentPlatform;
 
     // ANIMATION ADD
     private Animator animator;
@@ -110,6 +111,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (currentPlatform != null)
+        {
+            rigidBody.position += currentPlatform.PlatformVelocity * Time.fixedDeltaTime;
+        }
         if (rope.enabled)
             EnforceRopeConstraint();
 
@@ -259,4 +264,21 @@ public class PlayerMovement : MonoBehaviour
         lockAnimation = false;
         rigidBody.isKinematic = false;
     }
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent(out MovingPlatform platform))
+        {
+            currentPlatform = platform;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent(out MovingPlatform platform))
+        {
+            if (currentPlatform == platform)
+                currentPlatform = null;
+        }
+    }
+
 }

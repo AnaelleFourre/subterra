@@ -1040,3 +1040,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   door: {fileID: 1763877182005325196}
+  rotationSpeed: 90

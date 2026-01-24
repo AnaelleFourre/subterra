@@ -1,26 +1,23 @@
-using System.Collections;
 using UnityEngine;
-using TMPro;
 using UnityEngine.InputSystem;
+using TMPro; 
 
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
 
-    public GameObject dialogueBox;
-    public TextMeshProUGUI dialogueText;
-
+    private GameObject activeBox;
     private bool isDialogueActive = false;
 
     private void Awake()
     {
-        if (Instance == null) 
+        if (Instance == null) {
             Instance = this;
-        else
+            DontDestroyOnLoad(gameObject); 
+        }
+        else { 
             Destroy(gameObject);
-
-        if (dialogueBox != null)
-            dialogueBox.SetActive(false);
+        }
     }
 
     private void Update()
@@ -31,24 +28,36 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void ShowDialogue(GameObject boxToShow)
+    public void ShowDialogue(GameObject boxToUse, params TextMeshProUGUI[] textsToShow)
     {
-        if (dialogueBox != null && dialogueBox.activeSelf)
-            dialogueBox.SetActive(false);
+        if (activeBox != null && activeBox != boxToUse) 
+            activeBox.SetActive(false);
 
-        dialogueBox = boxToShow;
+        activeBox = boxToUse;
         
-        if (dialogueBox != null)
+        if (activeBox != null)
         {
-            dialogueBox.SetActive(true);
+            activeBox.SetActive(true);
+
+            if (textsToShow != null)
+            {
+                foreach (TextMeshProUGUI txt in textsToShow)
+                {
+                    if (txt != null)
+                    {
+                        txt.gameObject.SetActive(true);
+                    }
+                }
+            }
+
             isDialogueActive = true;
         }
     }
 
     public void HideDialogue()
     {
-        if (dialogueBox != null)
-            dialogueBox.SetActive(false);
+        if (activeBox != null)
+            activeBox.SetActive(false);
         
         isDialogueActive = false;
     }

@@ -25,6 +25,9 @@ public class DialogueTrigger : MonoBehaviour
         if (other.CompareTag("Player") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player")))
         {
             hasTriggered = false;
+            
+            if (DialogueManager.Instance != null)
+                DialogueManager.Instance.HideDialogue();
         }
     }
 }

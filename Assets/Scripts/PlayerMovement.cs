@@ -114,10 +114,7 @@ public class PlayerMovement : MonoBehaviour
                 Climb();
             // climbing down and feet out of LadderCollider => get off ladder
             if (moveAmount.y < 0f && Physics.OverlapSphere(feetTransform.position, 0.1f, ladderMask).Length == 0)
-            {
                 GetOffLadder();
-                Debug.Log(Time.time + " AUTO GET OFF LADDER");
-            }
         }
         else
         {
@@ -141,7 +138,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void GetOnLadder()
     {
-        Debug.Log(Time.time + " ON LADDER");
         rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
         rigidBody.useGravity = false;
         isClimbing = true;
@@ -149,7 +145,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void GetOffLadder()
     {
-        Debug.Log(Time.time + " OFF LADDER");
         const float LadderExitSpeed = 5f;
         var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
         rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);

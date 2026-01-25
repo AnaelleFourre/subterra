@@ -27380,6 +27380,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8595770514928618761, guid: f5a154eba334d124c8f8c1263aecae4c, type: 3}
+      propertyPath: sceneName
+      value: Level2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -42071,8 +42075,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bf4f214090e9b6e1a337967e02cc239, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueBox: {fileID: 778183339}
-  dialogueText: {fileID: 2074149416}
 --- !u!4 &2059345164 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 325957667753307446, guid: dd5d2435265fd3d4dad449e0211c311d, type: 3}

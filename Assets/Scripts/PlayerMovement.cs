@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private LayerMask playerMask;
+    [SerializeField] private LayerMask ladderMask;
     [SerializeField] private InputActionAsset InputActions;
     [SerializeField] private float WalkingSpeed = 5;
     [SerializeField] private float ClimbingSpeed = 3.5f;
@@ -57,24 +57,14 @@ public class PlayerMovement : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Ladder"))
-        {
-            rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
-            rigidBody.useGravity = false;
-            isClimbing = true;
-        }
+        if (other.gameObject.CompareTag("Ladder") && !isClimbing)
+            GetOnLadder();
     }
+
     void OnTriggerExit(Collider other)
     {
-
-        if (other.gameObject.CompareTag("Ladder"))
-        {
-            const float LadderExitSpeed = 5f;
-            var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
-            rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
-            rigidBody.useGravity = true;
-            isClimbing = false;
-        }
+        if (other.gameObject.CompareTag("Ladder") && isClimbing)
+            GetOffLadder();
     }
 
     private void Awake()
@@ -122,6 +112,9 @@ public class PlayerMovement : MonoBehaviour
         {
             if (moveAmount != Vector2.zero)
                 Climb();
+            // climbing down and feet out of LadderCollider => get off ladder
+            if (moveAmount.y < 0f && Physics.OverlapSphere(feetTransform.position, 0.1f, ladderMask).Length == 0)
+                GetOffLadder();
         }
         else
         {
@@ -141,6 +134,22 @@ public class PlayerMovement : MonoBehaviour
             );
             animator.SetFloat("Speed", horizontalVelocity.magnitude);
         }
+    }
+
+    private void GetOnLadder()
+    {
+        rigidBody.linearVelocity = Vector3.zero; // Reset velocity to prevent player from sliding
+        rigidBody.useGravity = false;
+        isClimbing = true;
+    }
+
+    private void GetOffLadder()
+    {
+        const float LadderExitSpeed = 5f;
+        var pushDirection = (moveAmount.y * cameraTarget.forward).normalized;
+        rigidBody.AddForce(LadderExitSpeed * pushDirection, ForceMode.VelocityChange);
+        rigidBody.useGravity = true;
+        isClimbing = false;
     }
 
     private bool CanJump()
@@ -212,7 +221,7 @@ public class PlayerMovement : MonoBehaviour
             var massScale = (rope != null && rope.enabled && !CanJump()) ? 1f : rigidBody.mass;
             force = gripSpeed * massScale * MovementForce * velocityDiff;
         }
-        
+
         rigidBody.AddForce(force, ForceMode.Force);
 
         // Clamp max speed

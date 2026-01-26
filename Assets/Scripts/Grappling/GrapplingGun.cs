@@ -168,7 +168,7 @@ public class GrapplingGun : MonoBehaviour
             rope.RemoveFirstNode();
             nodesRemovedSincePause++;
 
-            if (nodesRemovedSincePause >= 6)
+            if (nodesRemovedSincePause >= 10)
             {
                 isPaused = true;
                 pauseTimer = pauseDuration;

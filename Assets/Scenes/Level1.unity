@@ -36174,7 +36174,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e1b106e26a38bd04da192bc6c8da5fa7, type: 2}
+  - {fileID: 2100000, guid: 67ff02be41ffbb910b6f0c54dbf15305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -42071,8 +42071,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bf4f214090e9b6e1a337967e02cc239, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueBox: {fileID: 778183339}
-  dialogueText: {fileID: 2074149416}
 --- !u!4 &2059345164 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 325957667753307446, guid: dd5d2435265fd3d4dad449e0211c311d, type: 3}

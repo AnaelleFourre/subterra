@@ -101,6 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pointB: {x: 0, y: 0, z: 0}
   speed: 2
+  pauseDuration: 3
 --- !u!65 &6198767907034390587
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -108,7 +109,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1518610288152817211}
-  m_Material: {fileID: 13400000, guid: 55dc16809fc45b735897641f9d75968a, type: 2}
+  m_Material: {fileID: 13400000, guid: f393326b218ac662e8e57eaf92d70709, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0

@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private AudioClip jumpClip;
+    float delay = 0.35f; // Délai en secondes
     [SerializeField] private AudioClip iceClip;
     [SerializeField] private float MovementForce = 10f;
     [SerializeField] private float MaxSpeed = 10f;
@@ -92,6 +93,7 @@ public class PlayerMovement : MonoBehaviour
                 JumpOffLadder();
             else if (CanJump())
                 Jump();
+                PlayJumpSoundWithDelay();
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -159,10 +161,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
         rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
     }
-
+    void PlayJumpSoundWithDelay()
+    {
+        Invoke("PlayJumpSound", delay);
+    }
+    private void PlayJumpSound()
+    {
+        SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
+    }
     private void JumpOffLadder() => rigidBody.AddForce(JumpForce * -cameraTarget.forward, ForceMode.VelocityChange);
 
     private void Turn()

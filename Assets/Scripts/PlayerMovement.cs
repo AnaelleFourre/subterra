@@ -176,11 +176,14 @@ public class PlayerMovement : MonoBehaviour
     private void Turn()
     {
         var lookAmount = turnAction.ReadValue<Vector2>();
-        var angleDegrees = lookAmount.x * 90f;
-        cameraTarget.Rotate(0f, angleDegrees, 0f);
+        if (Mathf.Abs(lookAmount.x) > 0.1f) // Seuil pour éviter les micro-mouvements
+        {
+            float angleDegrees = Mathf.Sign(lookAmount.x) * 90f;
+            cameraTarget.Rotate(0f, angleDegrees, 0f);
 
-        var targetRotation = cameraTarget.rotation;
-        rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
+            var targetRotation = cameraTarget.rotation;
+            rigidBody.MoveRotation(Quaternion.Slerp(rigidBody.rotation, targetRotation, RotationSpeed * Time.fixedDeltaTime));
+        }
     }
 
     // If we're stepping on ice then return an IcyFloor.Grip, else return -1

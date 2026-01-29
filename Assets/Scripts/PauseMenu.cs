@@ -2,23 +2,33 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 
-
-// NE PAS OUBLIER !!!!!!
-// Ajouter un EventSystem avec Input System UI Input Module de base
-// Le player à l'air d'être un EventSystem, alors le Input System UI Input Module doit être
-// ajouté comme composant de Player
 public class PauseMenu : MonoBehaviour
 {
+    [SerializeField] private GameObject conteneur;
+    [SerializeField] private InputActionAsset inputActions; // Assigne ton InputActionsAsset dans l'inspecteur
+    private InputAction pauseAction;
 
-    public GameObject conteneur;
-
-    /**
-    * Si la touche ESC est appuyé, met en pause et affiche le menu
-    */
-    void Update()
+    private void Awake()
     {
-        var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
+        // Récupère l'action "Pause" depuis l'asset
+        pauseAction = inputActions.FindAction("Pause");
+        pauseAction.performed += TogglePause;
+        pauseAction.Enable();
+    }
+
+    private void OnDestroy()
+    {
+        pauseAction.performed -= TogglePause;
+        pauseAction.Disable();
+    }
+
+    private void TogglePause(InputAction.CallbackContext context)
+    {
+        if (conteneur.activeSelf)
+        {
+            Continuer();
+        }
+        else
         {
             conteneur.SetActive(true);
             Time.timeScale = 0;
@@ -26,8 +36,8 @@ public class PauseMenu : MonoBehaviour
     }
 
     /**
-    * Retire le menu et relance le jeu
-    */
+     * Retire le menu et relance le jeu
+     */
     public void Continuer()
     {
         conteneur.SetActive(false);
@@ -35,8 +45,8 @@ public class PauseMenu : MonoBehaviour
     }
 
     /**
-    * Renvoie au menu principal
-    */
+     * Renvoie au menu principal
+     */
     public void MenuPrincipal()
     {
         Time.timeScale = 1;
@@ -47,5 +57,4 @@ public class PauseMenu : MonoBehaviour
     {
         Application.Quit();
     }
-
 }

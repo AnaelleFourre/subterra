@@ -21,7 +21,7 @@ public class GrapplingGun : MonoBehaviour
     private float climbSoundTimer = 0f;
 
     private Vector3 grapplePoint;
-    public Transform gunTip, player;
+    public Transform gunTip;
     public GrappleSelector selector;
     private InputAction grappleAction;   // nouvelle action
     private InputAction pullRopeAction;   // nouvelle action
@@ -40,24 +40,27 @@ public class GrapplingGun : MonoBehaviour
     public float pauseDuration = 1f; // Durée de la pause en secondes
     private float pauseTimer = 0f; // Timer pour la pause
 
+    [SerializeField] private GameObject playerObject;
     void Awake()
     {
         isGrappling = false;
         grapplePoint = gunTip.position;
-        playerRigidbody = player.GetComponent<Rigidbody>();
+        playerRigidbody = playerObject.GetComponent<Rigidbody>();
+
+        PlayerInput playerInput = playerObject.GetComponent<PlayerInput>();
+        grappleAction = playerInput.actions["Grapple"];
+        pullRopeAction = playerInput.actions["PullRope"];
     }
 
     private void OnEnable()
     {
-        grappleAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/x");
         grappleAction.performed += GrappleManager; // Sans lambda
-        grappleAction.Enable();
-
-        pullRopeAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/c");
         pullRopeAction.started += _ => isClimbing = true;
         pullRopeAction.canceled += _ => isClimbing = false;
         pullRopeAction.canceled += _ => playerRigidbody.useGravity = true;
+
         pullRopeAction.Enable();
+        grappleAction.Enable();
 
     }
     void Update()

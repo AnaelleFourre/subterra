@@ -5,40 +5,36 @@ public class DoorManager : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera doorCamera;
     [SerializeField] private Transform cameraTarget;
-    int defaultCameraPriority;
-
+    private int defaultCameraPriority;
     public bool isOpen = false;
-    float openAngle = -90f;
-    float duration = 2f;
-    bool isAnimating = false;
-    float timer = 0f;
-    Quaternion closedRotation;
-    Quaternion openRotation;
-    PlayerMovement playerControls;
+    private readonly float openAngle = -90f;
+    private readonly float duration = 2f;
+    private bool isAnimating = false;
+    private float timer = 0f;
+    private Quaternion closedRotation;
+    private Quaternion openRotation;
+    private PlayerMovement playerControls;
 
     void Start()
     {
         closedRotation = transform.localRotation;
         openRotation = Quaternion.Euler(0f, openAngle, 0f);
         playerControls = FindFirstObjectByType<PlayerMovement>();
-
         if (doorCamera != null)
-        {
             defaultCameraPriority = doorCamera.Priority;
-        }
     }
 
-    void Update()
+    private void Update()
     {
         if (!isAnimating)
-        {
             return;
-        }
 
         timer += Time.deltaTime;
-        float t = timer / duration;
+        var t = timer / duration;
 
-        transform.localRotation = Quaternion.Lerp(isOpen ? closedRotation : openRotation, isOpen ? openRotation : closedRotation, t);
+        transform.localRotation = isOpen
+            ? Quaternion.Lerp(closedRotation, openRotation, t)
+            : Quaternion.Lerp(openRotation, closedRotation, t);
 
         if (t >= 1f)
         {
@@ -53,37 +49,31 @@ public class DoorManager : MonoBehaviour
         isOpen = !isOpen;
         timer = 0f;
         isAnimating = true;
-
         StartCinematic();
     }
 
-    void StartCinematic()
+    private void StartCinematic()
     {
         if (playerControls != null)
         {
             playerControls.LockWalkAnimation();
             playerControls.enabled = false;
         }
-
         if (doorCamera != null && cameraTarget != null)
         {
-            doorCamera.transform.position = cameraTarget.position;
-            doorCamera.transform.rotation = cameraTarget.rotation;
+            doorCamera.transform.SetPositionAndRotation(cameraTarget.position, cameraTarget.rotation);
             doorCamera.Priority = 20;
         }
     }
 
-    void EndCinematic()
+    private void EndCinematic()
     {
         if (playerControls != null)
         {
             playerControls.UnlockWalkAnimation();
             playerControls.enabled = true;
         }
-
         if (doorCamera != null)
-        {
             doorCamera.Priority = defaultCameraPriority;
-        }
     }
 }

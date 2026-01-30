@@ -2,34 +2,22 @@
 
 public class GrappleGunAutoActivate : MonoBehaviour
 {
-    public LineRenderer ropeLine;
-    public Renderer gun;
+    [SerializeField] private LineRenderer ropeLine;
+    [SerializeField] private Renderer gun;
 
-
-    void Start()
+    private void Start()
     {
         if (gun == null)
         {
             Debug.LogError("Gun not assigned!");
             enabled = false;
-            return;
         }
-
     }
 
-    void Update()
+    private void Update()
     {
         if (ropeLine == null) return;
-
-        bool ropeActive = ropeLine.positionCount > 0;
-
-        if (ropeActive)
-        {
-            gun.enabled = true;
-        }
-        else
-        {
-            gun.enabled = false;
-        }
+        var ropeActive = ropeLine.positionCount > 0;
+        gun.enabled = ropeActive;
     }
 }

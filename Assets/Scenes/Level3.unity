@@ -45377,6 +45377,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 7243703222570263160, guid: bf2042b90038a154e8334ead50664f51, type: 3}
+      propertyPath: sceneName
+      value: Level_end
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

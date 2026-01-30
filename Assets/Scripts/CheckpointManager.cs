@@ -4,9 +4,7 @@ using UnityEngine.SceneManagement;
 public class CheckpointManager : MonoBehaviour
 {
     public static CheckpointManager instance;
-
     [SerializeField] private Checkpoint currentCheckpoint;
-
     [SerializeField] private Checkpoint defaultCheckpoint;
 
     private void Awake()
@@ -23,30 +21,21 @@ public class CheckpointManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        FindDefaultCheckpoint();
-    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => FindDefaultCheckpoint();
 
     private void FindDefaultCheckpoint()
     {
         defaultCheckpoint = null;
-
-        var allCp = FindObjectsByType<Checkpoint>(FindObjectsSortMode.None);
-
-        foreach (var cp in allCp)
+        var checkpoints = FindObjectsByType<Checkpoint>(FindObjectsSortMode.None);
+        foreach (var checkpoint in checkpoints)
         {
-            cp.Deactivate();
-
-            if (defaultCheckpoint == null && cp.IsDefault)
+            checkpoint.Deactivate();
+            if (defaultCheckpoint == null && checkpoint.IsDefault)
             {
-                defaultCheckpoint = cp;
-                currentCheckpoint = cp;
+                defaultCheckpoint = checkpoint;
+                currentCheckpoint = checkpoint;
                 currentCheckpoint.Activate();
             }
         }
@@ -55,29 +44,12 @@ public class CheckpointManager : MonoBehaviour
     public void ActivateCheckpoint(Checkpoint checkpoint)
     {
         if (currentCheckpoint != null && currentCheckpoint != checkpoint)
-        {
             currentCheckpoint.Deactivate();
-        }
-
         currentCheckpoint = checkpoint;
         checkpoint.Activate();
     }
 
-    public Vector3 GetRespawnPosition()
-    {
-        if (currentCheckpoint != null)
-        {
-            return currentCheckpoint.GetSpawnPosition();
-        }
-        return Vector3.zero;
-    }
+    public Vector3 GetRespawnPosition() => currentCheckpoint == null ? Vector3.zero : currentCheckpoint.GetSpawnPosition();
 
-    public Vector3 GetDefaultSpawn()
-    {
-        if (defaultCheckpoint != null)
-        {
-            return defaultCheckpoint.GetSpawnPosition();
-        }
-        return Vector3.zero;
-    }
+    public Vector3 GetDefaultSpawn() => defaultCheckpoint == null ? Vector3.zero : defaultCheckpoint.GetSpawnPosition();
 }

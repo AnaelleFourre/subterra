@@ -2114,8 +2114,8 @@ RectTransform:
   - {fileID: 1898416572}
   - {fileID: 626231439}
   - {fileID: 1859002115}
-  - {fileID: 2101818108}
   - {fileID: 1676431772}
+  - {fileID: 2101818108}
   - {fileID: 860611635}
   - {fileID: 1355048619}
   m_Father: {fileID: 937573926}
@@ -4229,7 +4229,6 @@ MonoBehaviour:
   gunTip: {fileID: 728838857}
   selector: {fileID: 2030125259}
   rope: {fileID: 1446326523}
-  pullSpeed: 0.00001
   playerRigidbody: {fileID: 2030125258}
   pauseDuration: 1
   playerObject: {fileID: 2030125256}
@@ -10716,7 +10715,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbe8786b9583164fbd25b11720cad7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 1676431771}
   number: 1
 --- !u!114 &1676431774
 MonoBehaviour:
@@ -11340,7 +11338,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbe8786b9583164fbd25b11720cad7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 1859002114}
   number: 0
 --- !u!114 &1859002117
 MonoBehaviour:
@@ -12709,7 +12706,6 @@ MonoBehaviour:
   ClimbingSpeed: 3.5
   JumpForce: 5
   jumpClip: {fileID: 8300000, guid: 7275cdaea05cf594fb6724e6d31c68c8, type: 3}
-  landClip: {fileID: 8300000, guid: 7e9cb16c263add241acd177b292ae067, type: 3}
   iceClip: {fileID: 8300000, guid: 1af41d1ca60bf14ce947fd4ffe4814f7, type: 3}
   MovementForce: 10
   MaxSpeed: 10
@@ -13331,7 +13327,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecbe8786b9583164fbd25b11720cad7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  button: {fileID: 2101818107}
   number: 2
 --- !u!114 &2101818110
 MonoBehaviour:

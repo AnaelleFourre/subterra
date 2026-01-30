@@ -25,17 +25,20 @@ public class GrapplingGun : MonoBehaviour
     public GrappleSelector selector;
     private InputAction grappleAction;   // nouvelle action
     private InputAction pullRopeAction;   // nouvelle action
+    private InputAction elongateRopeAction;   // nouvelle action
     private bool isGrappling = false;
     private bool grappleAllowed = false;
 
     //Variables pour tirer sur la corde
     private bool isClimbing;
+    private bool isElongating;
     public Rope rope;
     public float pullSpeed = 0.00001f; // Vitesse d'augmentation (unité/seconde)
     public Rigidbody playerRigidbody;
 
     //Variables pour la pause quand on tire sur la corde
     private int nodesRemovedSincePause = 0; // Compteur de nœuds supprimés depuis la dernière pause
+    private int nodesAddedSincePause = 0; // Compteur de nœuds ajoutés depuis la dernière pause
     private bool isPaused = false; // État de pause
     public float pauseDuration = 1f; // Durée de la pause en secondes
     private float pauseTimer = 0f; // Timer pour la pause
@@ -58,6 +61,13 @@ public class GrapplingGun : MonoBehaviour
         pullRopeAction.canceled += _ => isClimbing = false;
         pullRopeAction.canceled += _ => playerRigidbody.useGravity = true;
         pullRopeAction.Enable();
+
+
+        elongateRopeAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/v");
+        elongateRopeAction.started += _ => isElongating = true;
+        elongateRopeAction.canceled += _ => isElongating = false;
+        elongateRopeAction.canceled += _ => playerRigidbody.useGravity = true;
+        elongateRopeAction.Enable();
 
     }
     void Update()
@@ -85,6 +95,12 @@ public class GrapplingGun : MonoBehaviour
         if (isGrappling && isClimbing && !isPaused)
         {
             PullRope();
+        }
+
+
+        if (isGrappling && isElongating && !isPaused)
+        {
+            ElongateRope();
         }
 
         // Gestion de la pause
@@ -173,6 +189,35 @@ public class GrapplingGun : MonoBehaviour
                 isPaused = true;
                 pauseTimer = pauseDuration;
                 nodesRemovedSincePause = 0;
+
+            }
+        }
+
+    }
+
+    void ElongateRope()
+    {
+        if (isPaused)
+        {
+            return; 
+        }
+
+        if (!isGrappling || !isElongating || rope.isMaxLength())
+        {
+            return;
+        }
+
+
+        if (!isPaused)
+        {
+            rope.AddNode();
+            nodesAddedSincePause++;
+
+            if (nodesAddedSincePause >= 10)
+            {
+                isPaused = true;
+                pauseTimer = pauseDuration;
+                nodesAddedSincePause = 0;
 
             }
         }

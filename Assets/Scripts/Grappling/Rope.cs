@@ -50,6 +50,8 @@ public class Rope : MonoBehaviour
     GameObject nodeTester;
     Matrix4x4[] matrices;
 
+    int MAX_LENGTH = 5;
+
     public void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -259,12 +261,10 @@ public class Rope : MonoBehaviour
             var node1 = currentNodePositions[i];
             var node2 = currentNodePositions[i + 1];
 
-            // Get the current distance between rope nodes
             float currentDistance = (node1 - node2).magnitude;
             float difference = Mathf.Abs(currentDistance - nodeDistance);
             Vector3 direction = Vector3.zero;
 
-            // determine what direction we need to adjust our nodes
             if (currentDistance > nodeDistance)
             {
                 direction = (node1 - node2).normalized;
@@ -274,10 +274,8 @@ public class Rope : MonoBehaviour
                 direction = (node2 - node1).normalized;
             }
 
-            // calculate the movement vector
             Vector3 movement = direction * difference;
 
-            // apply correction
             currentNodePositions[i] -= (movement * stiffness);
             currentNodePositions[i + 1] += (movement * stiffness);
         }
@@ -350,8 +348,66 @@ public class Rope : MonoBehaviour
         }
     }
 
+    public void AddNode()
+    {
+        if (currentNodePositions == null || previousNodePositions == null || currentNodeRotations == null || matrices == null || linePositions == null)
+        {
+            return;
+        }
+
+        int newTotal = totalNodes + 1;
+        Vector3[] newCurrent = new Vector3[newTotal];
+        Vector3[] newPrevious = new Vector3[newTotal];
+        Quaternion[] newRotations = new Quaternion[newTotal];
+        Matrix4x4[] newMatrices = new Matrix4x4[newTotal];
+        Vector3[] newLinePositions = new Vector3[newTotal];
+
+        newCurrent[0] = currentNodePositions[0];
+        newPrevious[0] = previousNodePositions[0];
+        newRotations[0] = currentNodeRotations[0];
+        newMatrices[0] = matrices[0];
+        newLinePositions[0] = linePositions[0];
+
+        Vector3 insertPos;
+        if (totalNodes >= 2)
+        {
+            insertPos = Vector3.Lerp(currentNodePositions[0], currentNodePositions[1], 0.5f);
+        }
+        else
+        {
+            insertPos = currentNodePositions[0];
+        }
+
+        newCurrent[1] = insertPos;
+        newPrevious[1] = insertPos;
+        newRotations[1] = (currentNodeRotations.Length > 1) ? currentNodeRotations[1] : Quaternion.identity;
+        newMatrices[1] = Matrix4x4.TRS(newCurrent[1], newRotations[1], Vector3.one);
+        newLinePositions[1] = newCurrent[1];
+
+        for (int i = 1; i < totalNodes; i++)
+        {
+            newCurrent[i + 1] = currentNodePositions[i];
+            newPrevious[i + 1] = previousNodePositions[i];
+            newRotations[i + 1] = currentNodeRotations[i];
+            newMatrices[i + 1] = matrices[i];
+            newLinePositions[i + 1] = linePositions[i];
+        }
+
+        totalNodes = newTotal;
+        currentNodePositions = newCurrent;
+        previousNodePositions = newPrevious;
+        currentNodeRotations = newRotations;
+        matrices = newMatrices;
+        linePositions = newLinePositions;
+    }
+
     public int getTotalNodes()
     {
                return totalNodes;
+    }
+
+    public bool isMaxLength()
+    { 
+        return getRopeLength() > MAX_LENGTH;
     }
 }

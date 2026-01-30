@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class PauseMenu : MonoBehaviour
 {
     [SerializeField] private GameObject conteneur;
-    [SerializeField] private InputActionAsset inputActions; // Assigne ton InputActionsAsset dans l'inspecteur
+    [SerializeField] private InputActionAsset inputActions;   
+    [SerializeField] private GameObject firstButton;
     private InputAction pauseAction;
 
     private void Awake()
     {
-        // Récupère l'action "Pause" depuis l'asset
         pauseAction = inputActions.FindAction("Pause");
         pauseAction.performed += TogglePause;
         pauseAction.Enable();
@@ -32,6 +33,7 @@ public class PauseMenu : MonoBehaviour
         {
             conteneur.SetActive(true);
             Time.timeScale = 0;
+            EventSystem.current.SetSelectedGameObject(firstButton);
         }
     }
 

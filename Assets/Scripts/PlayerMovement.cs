@@ -12,7 +12,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float ClimbingSpeed = 3.5f;
     [SerializeField] private float JumpForce = 5;
     [SerializeField] private AudioClip jumpClip;
-    float delay = 0.35f; // Délai en secondes
     [SerializeField] private AudioClip iceClip;
     [SerializeField] private float MovementForce = 10f;
     [SerializeField] private float MaxSpeed = 10f;
@@ -92,8 +91,10 @@ public class PlayerMovement : MonoBehaviour
             if (isClimbing)
                 JumpOffLadder();
             else if (CanJump())
+            {
                 Jump();
-                PlayJumpSoundWithDelay();
+                PlayJumpSound();
+            }   
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -156,16 +157,14 @@ public class PlayerMovement : MonoBehaviour
 
     private bool CanJump()
     {
+
         return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
+
     }
 
     private void Jump()
     {
         rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
-    }
-    void PlayJumpSoundWithDelay()
-    {
-        Invoke("PlayJumpSound", delay);
     }
     private void PlayJumpSound()
     {
@@ -308,5 +307,4 @@ public class PlayerMovement : MonoBehaviour
                 currentPlatform = null;
         }
     }
-
 }

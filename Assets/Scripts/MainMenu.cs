@@ -3,12 +3,18 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine.EventSystems;
+using System.Collections;
 
 public class MainMenu : MonoBehaviour
 {
     private const string Level1SceneName = "Level0";
-    [Header("Scene Dropdown")]
+
+    [Header("UI References")]
     public TMP_Dropdown sceneDropdown;
+    [SerializeField] private GameObject firstButtonAutoSelected;
+    [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject parametersMenu; // Réajout de la déclaration manquante
 
     private List<string> sceneNames = new List<string>();
 
@@ -16,6 +22,18 @@ public class MainMenu : MonoBehaviour
     {
         Time.timeScale = 1;
         InitSceneDropdown();
+
+        if (sceneDropdown.options.Count > 0)
+        {
+            sceneDropdown.value = 0;
+            StartCoroutine(SelectFirstButton());
+        }
+    }
+
+    private IEnumerator SelectFirstButton()
+    {
+        yield return new WaitForEndOfFrame();
+        EventSystem.current.SetSelectedGameObject(firstButtonAutoSelected);
     }
 
     void InitSceneDropdown()
@@ -24,7 +42,6 @@ public class MainMenu : MonoBehaviour
         sceneNames.Clear();
 
         int count = SceneManager.sceneCountInBuildSettings;
-
         for (int i = 0; i < count; i++)
         {
             string path = SceneUtility.GetScenePathByBuildIndex(i);
@@ -40,9 +57,9 @@ public class MainMenu : MonoBehaviour
     }
 
     /**
-    * number (int) : 0,1 ou 2 - Indique le numéro de la sauvegarde
-    * Charge la sauvegarde {number}
-    */
+     * number (int) : 0, 1 ou 2 - Indique le numéro de la sauvegarde
+     * Charge la sauvegarde {number}
+     */
     public void Saves(int number)
     {
         SaveManager.SetSlot(number);
@@ -60,13 +77,12 @@ public class MainMenu : MonoBehaviour
         {
             return Level1SceneName;
         }
-
         return sceneNames[sceneDropdown.value];
     }
 
     /**
-    * Charge directement la scène sélectionnée
-    */
+     * Charge directement la scène sélectionnée
+     */
     public void PlaySceneDirect()
     {
         string scene = GetSelectedScene();
@@ -81,11 +97,22 @@ public class MainMenu : MonoBehaviour
     }
 
     /**
-    * Charge la page des paramètres
-    */
+     * Charge la page des paramètres
+     */
     public void Parameters()
     {
+        mainMenu.SetActive(false);
+        parametersMenu.SetActive(true);
+    }
 
+    /**
+     * Retourne au menu principal depuis les paramètres
+     */
+    public void BackToMainMenu()
+    {
+        parametersMenu.SetActive(false);
+        mainMenu.SetActive(true);
+        StartCoroutine(SelectFirstButton());
     }
 
     public void QuitGame()

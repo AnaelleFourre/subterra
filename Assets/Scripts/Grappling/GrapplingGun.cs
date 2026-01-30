@@ -53,6 +53,7 @@ public class GrapplingGun : MonoBehaviour
         PlayerInput playerInput = playerObject.GetComponent<PlayerInput>();
         grappleAction = playerInput.actions["Grapple"];
         pullRopeAction = playerInput.actions["PullRope"];
+        elongateRopeAction = playerInput.actions["ElongateRope"];
     }
 
     private void OnEnable()
@@ -65,8 +66,6 @@ public class GrapplingGun : MonoBehaviour
         pullRopeAction.Enable();
         grappleAction.Enable();
 
-
-        elongateRopeAction = new InputAction(type: InputActionType.Button, binding: "<Keyboard>/v");
         elongateRopeAction.started += _ => isElongating = true;
         elongateRopeAction.canceled += _ => isElongating = false;
         elongateRopeAction.canceled += _ => playerRigidbody.useGravity = true;

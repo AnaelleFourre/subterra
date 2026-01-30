@@ -2,32 +2,25 @@ using UnityEngine;
 
 public class DialogueTrigger : MonoBehaviour
 {
-    public GameObject dialogueBox;
-    
-    private bool hasTriggered = false;
+    [SerializeField] private GameObject dialogueBox;
+    private bool inTrigger = false;
+
+    private bool IsPlayer(Collider other) => other.CompareTag("Player") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player"));
 
     private void OnTriggerEnter(Collider other)
     {
-        if (hasTriggered) return;
-
-        if (other.CompareTag("Player") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player")))
-        {
-            if (DialogueManager.Instance != null && dialogueBox != null)
-            {
-                DialogueManager.Instance.ShowDialogue(dialogueBox);
-                hasTriggered = true;
-            }
-        }
+        if (inTrigger || !IsPlayer(other) || DialogueManager.Instance == null || dialogueBox == null)
+            return;
+        DialogueManager.Instance.ShowDialogue(dialogueBox);
+        inTrigger = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player") || (other.attachedRigidbody != null && other.attachedRigidbody.CompareTag("Player")))
-        {
-            hasTriggered = false;
-            
-            if (DialogueManager.Instance != null)
-                DialogueManager.Instance.HideDialogue();
-        }
+        if (!IsPlayer(other))
+            return;
+        inTrigger = false;
+        if (DialogueManager.Instance != null)
+            DialogueManager.Instance.HideDialogue();
     }
 }

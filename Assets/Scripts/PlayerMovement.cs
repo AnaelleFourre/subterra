@@ -94,7 +94,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 Jump();
                 PlayJumpSound();
-            }   
+            }
         }
         if (turnAction.WasPressedThisFrame())
         {
@@ -257,13 +257,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void EnforceRopeConstraint()
     {
-        var fromAnchor = rope.getRopeStart() - rope.getGrapplePoint();
+        var fromAnchor = rope.GetRopeStart() - rope.GetGrapplePoint();
         var dist = fromAnchor.magnitude;
-        var maxLength = rope.getRopeLength() + 0.5f;
+        var maxLength = rope.GetRopeLength() + 0.5f;
 
         if (dist > maxLength)
         {
-            rigidBody.position = rope.getGrapplePoint() + fromAnchor.normalized * maxLength;
+            rigidBody.position = rope.GetGrapplePoint() + fromAnchor.normalized * maxLength;
 
             var v = rigidBody.linearVelocity;
             var outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);

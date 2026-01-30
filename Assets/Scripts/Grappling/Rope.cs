@@ -1,7 +1,4 @@
-using System.Net;
-using NUnit.Framework.Constraints;
 using UnityEngine;
-
 using System;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -14,7 +11,7 @@ public class Rope : MonoBehaviour
     [SerializeField] float nodeColliderRadius = 0.2f;
     [SerializeField] float ropeWidth = 0.1f;
     [SerializeField] LayerMask collisionMask = ~0; // All layers by default
-    int totalNodes;
+    private int totalNodes;
 
     [SerializeField] float gravityStrength = 2;
     [SerializeField] float velocityDampen = 0.1f;
@@ -22,37 +19,34 @@ public class Rope : MonoBehaviour
 
     [SerializeField] int iterateCollisionsEvery = 10;
     [SerializeField] int iterations = 100;
-    int colliderBufferSize = 1;
+    private readonly int colliderBufferSize = 1;
     RaycastHit[] raycastHitBuffer;
     Collider[] colliderHitBuffer;
-    Camera cam;
-
 
     [SerializeField] Rigidbody attachedRigidbody;
     [SerializeField] float pullForceStrength = 800f;
     [SerializeField] float pullThreshold = 0.95f;
 
-    Vector3 gravity;
+    private Vector3 gravity;
 
-    Vector3 ropeStart;
-    Vector3 ropeEnd;
-    Transform gunTip;
+    private Vector3 ropeStart;
+    private Vector3 ropeEnd;
+    private Transform gunTip;
 
+    private Vector3[] previousNodePositions;
+    private Vector3[] currentNodePositions;
+    private Quaternion[] currentNodeRotations;
 
-    Vector3[] previousNodePositions;
-    Vector3[] currentNodePositions;
-    Quaternion[] currentNodeRotations;
+    private LineRenderer lineRenderer;
+    private Vector3[] linePositions;
 
-    LineRenderer lineRenderer;
-    Vector3[] linePositions;
+    private SphereCollider nodeCollider;
+    private GameObject nodeTester;
+    private Matrix4x4[] matrices;
 
-    SphereCollider nodeCollider;
-    GameObject nodeTester;
-    Matrix4x4[] matrices;
+    private const int MAX_LENGTH = 5;
 
-    int MAX_LENGTH = 5;
-
-    public void Awake()
+    private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.useWorldSpace = true;
@@ -63,7 +57,6 @@ public class Rope : MonoBehaviour
         raycastHitBuffer = new RaycastHit[colliderBufferSize];
         colliderHitBuffer = new Collider[colliderBufferSize];
         gravity = new Vector3(0, -gravityStrength, 0);
-        cam = Camera.main;
 
         if (nodeTester == null)
         {
@@ -76,13 +69,13 @@ public class Rope : MonoBehaviour
         }
     }
 
-    public void initRope(Transform start, Vector3 endPoint)
+    public void InitRope(Transform start, Vector3 endPoint)
     {
         gunTip = start;
         ropeStart = gunTip.position;
         ropeEnd = endPoint;
 
-        float dist = Vector3.Distance(ropeStart, ropeEnd);
+        var dist = Vector3.Distance(ropeStart, ropeEnd);
         totalNodes = Mathf.CeilToInt(dist / nodeDistance) - 1;
 
         // Clamp to at least 2 nodes to avoid divide-by-zero.
@@ -96,8 +89,8 @@ public class Rope : MonoBehaviour
 
         for (int i = 0; i < totalNodes; i++)
         {
-            float t = (float)i / (totalNodes - 1);
-            Vector3 position = Vector3.Lerp(ropeStart, ropeEnd, t);
+            var t = (float)i / (totalNodes - 1);
+            var position = Vector3.Lerp(ropeStart, ropeEnd, t);
 
             currentNodePositions[i] = position;
             currentNodeRotations[i] = Quaternion.identity;
@@ -108,73 +101,42 @@ public class Rope : MonoBehaviour
         linePositions = new Vector3[totalNodes];
     }
 
-    public void SetAttachedRigidbody(Rigidbody rb)
-    {
-        attachedRigidbody = rb;
-    }
+    // public void SetAttachedRigidbody(Rigidbody rb) => attachedRigidbody = rb;
 
-    public float getRopeLength()
-    {
-        return totalNodes * nodeDistance;
-    }
+    public float GetRopeLength() => totalNodes * nodeDistance;
 
-    public bool isRopeTaut()
-    {
-        float currentDist = Vector3.Distance(ropeStart, ropeEnd);
-        float ropeLength = getRopeLength();
-        if (currentDist >= ropeLength * 0.98f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    // private bool IsRopeTaut()
+    // {
+    //     var currentDist = Vector3.Distance(ropeStart, ropeEnd);
+    //     var ropeLength = GetRopeLength();
+    //     return currentDist >= ropeLength * 0.98f;
+    // }
 
-    public Vector3 getGrapplePoint()
-    {
-        return ropeEnd;
-    }
+    public Vector3 GetGrapplePoint() => ropeEnd;
 
-    public Vector3 getRopeStart()
-    {
-        return ropeStart;
-    }
+    public Vector3 GetRopeStart() => ropeStart;
 
-    void Update()
+    private void OnDisable() => lineRenderer.positionCount = 0;
+
+    private void Update()
     {
         if (isActiveAndEnabled == false) return;
-
         ropeStart = gunTip.position;
         currentNodePositions[0] = ropeStart;
-
         DrawRope();
-
         Graphics.DrawMeshInstanced(link, 0, linkMaterial, matrices, totalNodes);
-    }
-
-    private void OnDisable()
-    {
-        lineRenderer.positionCount = 0;
     }
 
     private void FixedUpdate()
     {
         if (isActiveAndEnabled == false) return;
-
         Simulate();
-
         for (int i = 0; i < iterations; i++)
         {
             ApplyConstraint();
-
             if (i % iterateCollisionsEvery == 0)
-            {
                 AdjustCollisions();
-            }
         }
-
         ApplyPullForce();
         SetAngles();
         TranslateMatrices();
@@ -184,26 +146,25 @@ public class Rope : MonoBehaviour
     {
         if (attachedRigidbody == null) return;
 
-        Vector3 toGrapplePoint = ropeEnd - ropeStart;
-        float currentDistance = toGrapplePoint.magnitude;
-        float maxRopeLength = getRopeLength();
+        var toGrapplePoint = ropeEnd - ropeStart;
+        var currentDistance = toGrapplePoint.magnitude;
+        var maxRopeLength = GetRopeLength();
 
         if (currentDistance > maxRopeLength * pullThreshold)
         {
-            float overstretch = currentDistance - (maxRopeLength * pullThreshold);
-            float stretchRatio = overstretch / maxRopeLength;
+            var overstretch = currentDistance - (maxRopeLength * pullThreshold);
+            var stretchRatio = overstretch / maxRopeLength;
 
-            Vector3 pullDirection = toGrapplePoint.normalized;
-
-            Vector3 pullForce = pullDirection * (pullForceStrength * stretchRatio);
+            var pullDirection = toGrapplePoint.normalized;
+            var pullForce = pullDirection * (pullForceStrength * stretchRatio);
             attachedRigidbody.AddForce(pullForce, ForceMode.Force);
 
-            Vector3 velocity = attachedRigidbody.linearVelocity;
-            float outwardVelocity = Vector3.Dot(velocity, pullDirection);
+            var velocity = attachedRigidbody.linearVelocity;
+            var outwardVelocity = Vector3.Dot(velocity, pullDirection);
 
             if (outwardVelocity < 0)
             {
-                Vector3 dampingForce = -pullDirection * (outwardVelocity * 0.5f);
+                var dampingForce = -pullDirection * (outwardVelocity * 0.5f);
                 attachedRigidbody.AddForce(dampingForce, ForceMode.VelocityChange);
             }
         }
@@ -214,14 +175,13 @@ public class Rope : MonoBehaviour
         var fixedDt = Time.fixedDeltaTime;
         for (int i = 0; i < totalNodes; i++)
         {
-            Vector3 velocity = currentNodePositions[i] - previousNodePositions[i];
+            var velocity = currentNodePositions[i] - previousNodePositions[i];
             velocity *= velocityDampen;
 
             previousNodePositions[i] = currentNodePositions[i];
 
-            Vector3 newPos = currentNodePositions[i] + velocity;
+            var newPos = currentNodePositions[i] + velocity;
             newPos += gravity * fixedDt;
-            Vector3 direction = currentNodePositions[i] - newPos;
 
             currentNodePositions[i] = newPos;
         }
@@ -229,22 +189,16 @@ public class Rope : MonoBehaviour
 
     private void AdjustCollisions()
     {
-        for (int i = 0; i < totalNodes; i++)
+        for (int i = 1; i < totalNodes; i += 2)
         {
-            if (i % 2 == 0) continue;
-
-            int result = -1;
-            result = Physics.OverlapSphereNonAlloc(currentNodePositions[i], nodeColliderRadius + 0.01f, colliderHitBuffer, collisionMask);
+            var result = Physics.OverlapSphereNonAlloc(currentNodePositions[i], nodeColliderRadius + 0.01f, colliderHitBuffer, collisionMask);
 
             for (int n = 0; n < result; n++)
             {
-                Vector3 colliderPosition = colliderHitBuffer[n].transform.position;
-                Quaternion colliderRotation = colliderHitBuffer[n].gameObject.transform.rotation;
+                var colliderPosition = colliderHitBuffer[n].transform.position;
+                var colliderRotation = colliderHitBuffer[n].gameObject.transform.rotation;
 
-                Vector3 dir;
-                float distance;
-
-                Physics.ComputePenetration(nodeCollider, currentNodePositions[i], Quaternion.identity, colliderHitBuffer[n], colliderPosition, colliderRotation, out dir, out distance);
+                Physics.ComputePenetration(nodeCollider, currentNodePositions[i], Quaternion.identity, colliderHitBuffer[n], colliderPosition, colliderRotation, out Vector3 dir, out float distance);
 
                 currentNodePositions[i] += dir * distance;
             }
@@ -261,27 +215,23 @@ public class Rope : MonoBehaviour
             var node1 = currentNodePositions[i];
             var node2 = currentNodePositions[i + 1];
 
-            float currentDistance = (node1 - node2).magnitude;
-            float difference = Mathf.Abs(currentDistance - nodeDistance);
-            Vector3 direction = Vector3.zero;
+            var currentDistance = (node1 - node2).magnitude;
+            var difference = Mathf.Abs(currentDistance - nodeDistance);
+            var direction = Vector3.zero;
 
             if (currentDistance > nodeDistance)
-            {
                 direction = (node1 - node2).normalized;
-            }
             else if (currentDistance < nodeDistance)
-            {
                 direction = (node2 - node1).normalized;
-            }
 
-            Vector3 movement = direction * difference;
+            var movement = direction * difference;
 
-            currentNodePositions[i] -= (movement * stiffness);
-            currentNodePositions[i + 1] += (movement * stiffness);
+            currentNodePositions[i] -= movement * stiffness;
+            currentNodePositions[i + 1] += movement * stiffness;
         }
     }
 
-    void SetAngles()
+    private void SetAngles()
     {
         for (int i = 0; i < totalNodes - 1; i++)
         {
@@ -291,8 +241,7 @@ public class Rope : MonoBehaviour
             var dir = (node2 - node1).normalized;
             if (dir != Vector3.zero)
             {
-                Quaternion desiredRotation = Quaternion.LookRotation(dir, Vector3.right) * Quaternion.Euler(90.0f, 0.0f, 0.0f);
-
+                var desiredRotation = Quaternion.LookRotation(dir, Vector3.right) * Quaternion.Euler(90.0f, 0.0f, 0.0f);
                 currentNodeRotations[i] = desiredRotation;
                 currentNodeRotations[i + 1] = desiredRotation;
             }
@@ -300,67 +249,58 @@ public class Rope : MonoBehaviour
         }
     }
 
-    void TranslateMatrices()
+    private void TranslateMatrices()
     {
         for (int i = 0; i < totalNodes; i++)
         {
-            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], new Vector3(20 * nodeDistance, 2 * nodeDistance, 20 * nodeDistance));
+            var scaling = new Vector3(20 * nodeDistance, 2 * nodeDistance, 20 * nodeDistance);
+            matrices[i].SetTRS(currentNodePositions[i], currentNodeRotations[i], scaling);
         }
     }
 
     private void DrawRope()
     {
-
         lineRenderer.startWidth = ropeWidth;
         lineRenderer.endWidth = ropeWidth;
 
         for (int n = 0; n < totalNodes; n++)
-        {
             linePositions[n] = currentNodePositions[n];
-        }
 
         lineRenderer.positionCount = linePositions.Length;
         lineRenderer.SetPositions(linePositions);
 
     }
+
     public void RemoveFirstNode()
     {
         if (totalNodes < 2)
-        {
             return;
-        }
-        else
+        for (int i = 0; i < totalNodes - 1; i++)
         {
-            for (int i = 0; i < totalNodes -1; i++)
-            {
-                currentNodePositions[i] = currentNodePositions[i + 1];
-                previousNodePositions[i] = previousNodePositions[i + 1];
-                currentNodeRotations[i] = currentNodeRotations[i + 1];
-            }
-
-            // Redimensionner les tableaux
-            totalNodes--;
-            Array.Resize(ref currentNodePositions, totalNodes);
-            Array.Resize(ref previousNodePositions, totalNodes);
-            Array.Resize(ref currentNodeRotations, totalNodes);
-            Array.Resize(ref matrices, totalNodes);
-            Array.Resize(ref linePositions, totalNodes);
+            currentNodePositions[i] = currentNodePositions[i + 1];
+            previousNodePositions[i] = previousNodePositions[i + 1];
+            currentNodeRotations[i] = currentNodeRotations[i + 1];
         }
+        // Redimensionner les tableaux
+        totalNodes--;
+        Array.Resize(ref currentNodePositions, totalNodes);
+        Array.Resize(ref previousNodePositions, totalNodes);
+        Array.Resize(ref currentNodeRotations, totalNodes);
+        Array.Resize(ref matrices, totalNodes);
+        Array.Resize(ref linePositions, totalNodes);
     }
 
     public void AddNode()
     {
         if (currentNodePositions == null || previousNodePositions == null || currentNodeRotations == null || matrices == null || linePositions == null)
-        {
             return;
-        }
 
-        int newTotal = totalNodes + 1;
-        Vector3[] newCurrent = new Vector3[newTotal];
-        Vector3[] newPrevious = new Vector3[newTotal];
-        Quaternion[] newRotations = new Quaternion[newTotal];
-        Matrix4x4[] newMatrices = new Matrix4x4[newTotal];
-        Vector3[] newLinePositions = new Vector3[newTotal];
+        var newTotal = totalNodes + 1;
+        var newCurrent = new Vector3[newTotal];
+        var newPrevious = new Vector3[newTotal];
+        var newRotations = new Quaternion[newTotal];
+        var newMatrices = new Matrix4x4[newTotal];
+        var newLinePositions = new Vector3[newTotal];
 
         newCurrent[0] = currentNodePositions[0];
         newPrevious[0] = previousNodePositions[0];
@@ -370,13 +310,9 @@ public class Rope : MonoBehaviour
 
         Vector3 insertPos;
         if (totalNodes >= 2)
-        {
             insertPos = Vector3.Lerp(currentNodePositions[0], currentNodePositions[1], 0.5f);
-        }
         else
-        {
             insertPos = currentNodePositions[0];
-        }
 
         newCurrent[1] = insertPos;
         newPrevious[1] = insertPos;
@@ -401,13 +337,7 @@ public class Rope : MonoBehaviour
         linePositions = newLinePositions;
     }
 
-    public int getTotalNodes()
-    {
-               return totalNodes;
-    }
+    public int GetTotalNodes() => totalNodes;
 
-    public bool isMaxLength()
-    { 
-        return getRopeLength() > MAX_LENGTH;
-    }
+    public bool IsMaxLength() => GetRopeLength() > MAX_LENGTH;
 }

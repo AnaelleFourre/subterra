@@ -135,14 +135,14 @@ public class GrapplingGun : MonoBehaviour
             return;
         }
         grapplePoint = best.position;
-        rope.initRope(gunTip, grapplePoint);
+        rope.InitRope(gunTip, grapplePoint);
         SoundFXManager.instance.PlaySoundFXClip(cassetteClip, transform, 1f);
         rope.enabled = true;
     }
 
     private void PullRope()
     {
-        if (rope.getTotalNodes() < 2)
+        if (rope.GetTotalNodes() < 2)
             return;
         rope.RemoveFirstNode();
         nodesRemovedSincePause++;
@@ -156,7 +156,7 @@ public class GrapplingGun : MonoBehaviour
 
     private void ElongateRope()
     {
-        if (rope.isMaxLength())
+        if (rope.IsMaxLength())
             return;
         rope.AddNode();
         nodesAddedSincePause++;

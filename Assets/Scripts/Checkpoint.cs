@@ -1,6 +1,6 @@
 using UnityEngine;
-using UnityEngine.Timeline;
 
+[RequireComponent(typeof(Renderer))]
 public class Checkpoint : MonoBehaviour
 {
     [Header("Checkpoint Settings")]
@@ -11,13 +11,13 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] private Material inactiveMaterial;
     [SerializeField] private Material activeMaterial;
 
-    private Renderer rend;
+    private Renderer _renderer;
 
     public bool IsDefault => isDefaultCheckpoint;
 
     private void Awake()
     {
-        rend = GetComponent<Renderer>();
+        _renderer = GetComponent<Renderer>();
         Deactivate();
     }
 
@@ -30,18 +30,9 @@ public class Checkpoint : MonoBehaviour
         }
     }
 
-    public Vector3 GetSpawnPosition()
-    {
-        return transform.position;
-    }
+    public Vector3 GetSpawnPosition() => transform.position;
 
-    public void Activate()
-    {
-        rend.material = activeMaterial;
-    }
+    public void Activate() => _renderer.material = activeMaterial;
 
-    public void Deactivate()
-    {
-        rend.material = inactiveMaterial;
-    }
+    public void Deactivate() => _renderer.material = inactiveMaterial;
 }

@@ -4,17 +4,11 @@ using Unity.Cinemachine;
 
 public class CameraRelinker : MonoBehaviour
 {
-    void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-    void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         var target = GameObject.FindWithTag("CameraTarget");
         var cams = FindObjectsByType<CinemachineCamera>(FindObjectsSortMode.None);

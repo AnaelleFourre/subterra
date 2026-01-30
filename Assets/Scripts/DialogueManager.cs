@@ -1,21 +1,22 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using TMPro; 
+using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance;
-
     private GameObject activeBox;
     private bool isDialogueActive = false;
 
     private void Awake()
     {
-        if (Instance == null) {
+        if (Instance == null)
+        {
             Instance = this;
-            DontDestroyOnLoad(gameObject); 
+            DontDestroyOnLoad(gameObject);
         }
-        else { 
+        else
+        {
             Destroy(gameObject);
         }
     }
@@ -23,42 +24,32 @@ public class DialogueManager : MonoBehaviour
     private void Update()
     {
         if (isDialogueActive && Keyboard.current.anyKey.wasPressedThisFrame)
-        {
             HideDialogue();
-        }
     }
 
     public void ShowDialogue(GameObject boxToUse, params TextMeshProUGUI[] textsToShow)
     {
-        if (activeBox != null && activeBox != boxToUse) 
+        if (activeBox != null && activeBox != boxToUse)
             activeBox.SetActive(false);
-
         activeBox = boxToUse;
-        
-        if (activeBox != null)
+        if (activeBox == null)
+            return;
+        activeBox.SetActive(true);
+        isDialogueActive = true;
+        if (textsToShow == null)
+            return;
+        foreach (var text in textsToShow)
         {
-            activeBox.SetActive(true);
-
-            if (textsToShow != null)
-            {
-                foreach (TextMeshProUGUI txt in textsToShow)
-                {
-                    if (txt != null)
-                    {
-                        txt.gameObject.SetActive(true);
-                    }
-                }
-            }
-
-            isDialogueActive = true;
+            if (text != null)
+                text.gameObject.SetActive(true);
         }
+
     }
 
     public void HideDialogue()
     {
         if (activeBox != null)
             activeBox.SetActive(false);
-        
         isDialogueActive = false;
     }
 }

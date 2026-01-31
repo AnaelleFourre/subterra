@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class SaveManager
 {
     public static SaveData currentData = new SaveData();
-    private static int currentSlot = 0;
+    private static int loadedSlot;
     private static readonly string[] paths = new string[3];
 
     static SaveManager()
@@ -16,9 +16,9 @@ public class SaveManager
         }
     }
 
-    public static void InitSave(string saveName, string startSceneName)
+    public static void InitSave(string saveName, string startSceneName, int slotNumber)
     {
-        var path = paths[currentSlot];
+        var path = paths[slotNumber];
 
         if (!File.Exists(path))
         {
@@ -46,7 +46,7 @@ public class SaveManager
 
     public static void Save(Vector3 position, int levelNumber)
     {
-        var path = paths[currentSlot];
+        var path = paths[loadedSlot];
 
         currentData.playerPosition = position;
         currentData.playTime = TimeManager.instance.playTime;
@@ -58,9 +58,9 @@ public class SaveManager
         File.WriteAllText(path, json);
     }
 
-    public static bool Load()
+    public static bool Load(int slotNumber)
     {
-        var path = paths[currentSlot];
+        var path = paths[slotNumber];
 
         if (!File.Exists(path))
         {
@@ -72,6 +72,7 @@ public class SaveManager
 
         SceneManager.LoadScene(currentData.sceneName);
         SceneManager.sceneLoaded += OnSceneLoaded;
+        loadedSlot = slotNumber;
 
         return true;
     }
@@ -93,14 +94,14 @@ public class SaveManager
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    public static bool DeleteSave(int slot)
+    public static bool DeleteSave(int slotNumber)
     {
-        if (slot < 0 || slot > 2)
+        if (slotNumber < 0 || slotNumber > 2)
         {
             return false;
         }
 
-        string path = paths[slot];
+        string path = paths[slotNumber];
 
         if (File.Exists(path))
         {
@@ -124,12 +125,12 @@ public class SaveManager
         return JsonUtility.FromJson<SaveData>(json);
     }
 
-    public static void SetSlot(int newSlot)
-    {
-        if (newSlot >= 0 && newSlot < 3)
-        {
-            currentSlot = newSlot;
-        }
-    }
+    // public static void SetSlot(int newSlot)
+    // {
+    //     if (newSlot >= 0 && newSlot < 3)
+    //     {
+    //         currentSlot = newSlot;
+    //     }
+    // }
 }
 

@@ -62,13 +62,12 @@ public class MainMenu : MonoBehaviour
      */
     public void Saves(int number)
     {
-        SaveManager.SetSlot(number);
         SaveData data = SaveManager.SlotData(number);
         if (data == null)
         {
-            SaveManager.InitSave("Save n°" + (number + 1), Level1SceneName);
+            SaveManager.InitSave("Save n°" + (number + 1), Level1SceneName, number);
         }
-        SaveManager.Load();
+        SaveManager.Load(number);
     }
 
     string GetSelectedScene()
@@ -86,14 +85,13 @@ public class MainMenu : MonoBehaviour
     public void PlaySceneDirect()
     {
         string scene = GetSelectedScene();
-        SaveManager.SetSlot(2);
         SaveData data = SaveManager.SlotData(2);
         if (data != null)
         {
             SaveManager.DeleteSave(2);
         }
-        SaveManager.InitSave("Save n°" + 3, scene);
-        SaveManager.Load();
+        SaveManager.InitSave("Save n°" + 3, scene, 2);
+        SaveManager.Load(2);
     }
 
     /**

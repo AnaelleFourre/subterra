@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class SaveManager
 {
     public static SaveData currentData = new SaveData();
-    public static int currentSlot = 0;
+    private static int currentSlot = 0;
     private static readonly string[] paths = new string[3];
 
     static SaveManager()

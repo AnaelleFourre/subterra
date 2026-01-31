@@ -14,7 +14,7 @@ public class MainMenu : MonoBehaviour
     public TMP_Dropdown sceneDropdown;
     [SerializeField] private GameObject firstButtonAutoSelected;
     [SerializeField] private GameObject mainMenu;
-    [SerializeField] private GameObject parametersMenu; // Réajout de la déclaration manquante
+    [SerializeField] private GameObject parametersMenu;
 
     private List<string> sceneNames = new List<string>();
 

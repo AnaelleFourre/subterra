@@ -8,8 +8,10 @@ public class ParametersMenu : MonoBehaviour
 
     private bool parametersMenuActive = false;
     [SerializeField] private GameObject firstButton;
+    [SerializeField] private GameObject fallbackSelection;
 
-    public void changeMenu(){
+    public void changeMenu()
+    {
         parametersMenuActive = !parametersMenuActive;
         mainMenu.SetActive(!parametersMenuActive);
         parametersMenu.SetActive(parametersMenuActive);
@@ -20,7 +22,7 @@ public class ParametersMenu : MonoBehaviour
         }
         else if (!parametersMenuActive)
         {
-            EventSystem.current.SetSelectedGameObject(null); // Désélectionne tout
+            EventSystem.current.SetSelectedGameObject(fallbackSelection); // Désélectionne tout
         }
     }
 }

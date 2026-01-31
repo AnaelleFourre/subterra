@@ -1,15 +1,23 @@
-# Contrôle
+# Subterra
 
-Z,Q,S,D - Se déplacer
-E,A - Tourner la caméra à 90° vers la droite/gauche
-X - S'accrocher/Se décrocher avec le grappin
-C - Raccourcir la corde
-ESC - Menu pause
-SPACE - Sauter
+Jeu de plateforme 3D réalisé à l'aide d'Unity. Le joueur, incarnant Violet, doit retrouver son compagnon Victor, perdu dans les profondeurs. Afin de l'aider à évoluer dans les différent niveaux et franchir les obstacles qui lui barrent la route, elle peut se servir de son fidèle grappin.
 
-# Sources
+Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de plus en plus profondes ? 
 
-## Assets
+## Contrôles
+
+| Action | Clavier | Manette |
+|--------|---------|--------|
+| Se déplacer | Touches Z, Q, S, D | Stick gauche |
+| Tourner la caméra à 90° droite/gauche | Touches E / A | Stick droit |
+| S’accrocher / se décrocher avec le grappin | Touche X | Bouton X |
+| Raccourcir / allonger la corde | Touches C / V | Bouton B / Bouton Y |
+| Menu pause | ESC | Start |
+| Sauter | Espace | Bouton A |
+
+## Sources
+
+### Assets
 
 > Plateforme mouvante, clés et blocs : https://assetstore.unity.com/packages/3d/environments/lowpoly-platformer-kit-free-modular-stylized-blocks-319018
 
@@ -18,7 +26,7 @@ SPACE - Sauter
 > Personnage : Eve par J. Gonzales (mixamo.com)
 
 
-## Son 
+### Son 
 
 > Glace : https://motionarray.com/sound-effects/ice-skating-1900294/
 
@@ -30,7 +38,7 @@ SPACE - Sauter
 
 > Musique : https://pixabay.com/fr/music/search/fantasy/  Titre: Never Again de GuilhermeBernardes
 
-## Codes
+### Codes
 
 Ouverture porte + clé : [How to OPEN A DOOR With KEY in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=RQ61nY2WOtA) et [How to OPEN A DOOR in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=-n5398EtqYc)
 

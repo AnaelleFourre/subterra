@@ -5,38 +5,31 @@ public class SceneLoader : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     [SerializeField] private DoorManager linkedDoor;
+    private TeleportTrigger trigger;
+    private bool isTeleporting;
 
-    TeleportTrigger trigger;
-    bool isTeleporting;
-
-    void Start()
+    private void Start()
     {
         trigger = GetComponentInChildren<TeleportTrigger>();
         isTeleporting = false;
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (isTeleporting || trigger != null || !other.CompareTag("Player") || (linkedDoor != null && !linkedDoor.isOpen))
-        {
             return;
-        }
-
         StartTeleport();
     }
 
     public void StartTeleport()
     {
         if (isTeleporting)
-        {
             return;
-        }
-
         isTeleporting = true;
         FadeTransition();
     }
 
-    async void FadeTransition()
+    private async void FadeTransition()
     {
         var playerMovement = FindAnyObjectByType<PlayerMovement>();
         if (playerMovement)
@@ -60,15 +53,11 @@ public class SceneLoader : MonoBehaviour
         isTeleporting = false;
     }
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        GameObject player = GameObject.FindWithTag("Player");
-
+        var player = GameObject.FindWithTag("Player");
         if (player != null && CheckpointManager.instance != null)
-        {
             player.transform.position = CheckpointManager.instance.GetDefaultSpawn() + Vector3.up * 0.5f;
-        }
-
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

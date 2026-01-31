@@ -22,37 +22,26 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 moveAmount;
     private Rigidbody rigidBody;
     private Transform feetTransform;
-    private Transform cameraTarget; // used rotate player model without moving camera
+    private Transform cameraTarget; // to rotate player model without moving camera
     private Rope rope;
-    private Vector3 currentVelocity;
-    public LayerMask groundLayer;
+    [SerializeField] private LayerMask groundLayer;
 
     private bool isGrounded;
     private float soundTimer = 0f;
     private bool isClimbing;
     private bool lockAnimation = false;
     private MovingPlatform currentPlatform;
-
-    // ANIMATION ADD
     private Animator animator;
 
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         var map = InputActions.FindActionMap("Player", true);
         if (!map.enabled)
-        {
             map.Enable();
-        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -78,8 +67,6 @@ public class PlayerMovement : MonoBehaviour
         cameraTarget.SetPositionAndRotation(transform.position, transform.rotation);
         rope = GetComponentInChildren<Rope>();
         isClimbing = false;
-
-        // ANIMATION ADD
         animator = GetComponentInChildren<Animator>();
     }
 
@@ -97,20 +84,15 @@ public class PlayerMovement : MonoBehaviour
             }
         }
         if (turnAction.WasPressedThisFrame())
-        {
             Turn();
-        }
     }
 
     private void FixedUpdate()
     {
         if (currentPlatform != null)
-        {
             rigidBody.position += currentPlatform.PlatformVelocity * Time.fixedDeltaTime;
-        }
         if (rope.enabled)
             EnforceRopeConstraint();
-
         if (isClimbing)
         {
             if (moveAmount != Vector2.zero)
@@ -120,14 +102,11 @@ public class PlayerMovement : MonoBehaviour
                 GetOffLadder();
         }
         else
-        {
             Walk();
-        }
 
         // In FixedUpdate => cameraTarget follows rigidBody even while jumping or falling
         cameraTarget.position = transform.position;
 
-        // ANIMATION ADD
         if (animator != null && !lockAnimation)
         {
             Vector3 horizontalVelocity = new Vector3(
@@ -155,21 +134,12 @@ public class PlayerMovement : MonoBehaviour
         isClimbing = false;
     }
 
-    private bool CanJump()
-    {
+    private bool CanJump() => Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
 
-        return Physics.OverlapSphere(feetTransform.position, 0.1f, playerMask).Length != 0;
+    private void Jump() => rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
 
-    }
+    private void PlayJumpSound() => SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
 
-    private void Jump()
-    {
-        rigidBody.AddForce(JumpForce * Vector3.up, ForceMode.VelocityChange);
-    }
-    private void PlayJumpSound()
-    {
-        SoundFXManager.instance.PlaySoundFXClip(jumpClip, transform, 0.8f);
-    }
     private void JumpOffLadder() => rigidBody.AddForce(JumpForce * -cameraTarget.forward, ForceMode.VelocityChange);
 
     private void Turn()
@@ -203,9 +173,7 @@ public class PlayerMovement : MonoBehaviour
         var gripSpeed = floorGrip == -1f ? 1f : floorGrip;
 
         if (soundTimer > 0)
-        {
             soundTimer -= Time.deltaTime;
-        }
 
         if (gripSpeed < 1f)
         {
@@ -222,9 +190,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 force;
 
         if (gripSpeed < 1f && direction == Vector3.zero)
-        {
-            force = Vector3.zero; //glisse
-        }
+            force = Vector3.zero; // glisse
         else
         {
             var velocityDiff = targetVelocity - currentHorizontalVelocity;
@@ -269,9 +235,7 @@ public class PlayerMovement : MonoBehaviour
             var outwardSpeed = Vector3.Dot(v, fromAnchor.normalized);
 
             if (outwardSpeed > 0f)
-            {
                 rigidBody.linearVelocity = v - fromAnchor.normalized * outwardSpeed;
-            }
         }
     }
 
@@ -279,9 +243,7 @@ public class PlayerMovement : MonoBehaviour
     {
         lockAnimation = true;
         if (animator != null)
-        {
             animator.SetFloat("Speed", 0f);
-        }
         moveAmount = Vector2.zero;
         rigidBody.isKinematic = true;
     }
@@ -291,17 +253,16 @@ public class PlayerMovement : MonoBehaviour
         lockAnimation = false;
         rigidBody.isKinematic = false;
     }
+
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent(out MovingPlatform platform))
-        {
+        if (collision.gameObject.TryGetComponent<MovingPlatform>(out var platform))
             currentPlatform = platform;
-        }
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent(out MovingPlatform platform))
+        if (collision.gameObject.TryGetComponent<MovingPlatform>(out var platform))
         {
             if (currentPlatform == platform)
                 currentPlatform = null;

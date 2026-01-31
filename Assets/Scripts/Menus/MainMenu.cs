@@ -43,8 +43,8 @@ public class MainMenu : MonoBehaviour
         int count = SceneManager.sceneCountInBuildSettings;
         for (int i = 0; i < count; i++)
         {
-            string path = SceneUtility.GetScenePathByBuildIndex(i);
-            string name = Path.GetFileNameWithoutExtension(path);
+            var path = SceneUtility.GetScenePathByBuildIndex(i);
+            var name = Path.GetFileNameWithoutExtension(path);
 
             if (name != "MainMenu")
             {

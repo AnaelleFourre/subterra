@@ -22,7 +22,7 @@ public class ParametersMenu : MonoBehaviour
         }
         else if (!parametersMenuActive)
         {
-            EventSystem.current.SetSelectedGameObject(fallbackSelection); // Désélectionne tout
+            EventSystem.current.SetSelectedGameObject(fallbackSelection);
         }
     }
 }

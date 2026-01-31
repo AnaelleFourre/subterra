@@ -3,8 +3,7 @@ using UnityEngine;
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager instance;
-
-    public float playTime = 0;
+    public float playTime = 0f;
 
     private void Awake()
     {
@@ -14,9 +13,7 @@ public class TimeManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
     private void Update()
@@ -24,8 +21,5 @@ public class TimeManager : MonoBehaviour
         playTime += Time.unscaledDeltaTime;
     }
 
-    public void SetPlayTime(float value)
-    {
-        playTime = value;
-    }
+    public void SetPlayTime(float value) => playTime = value;
 }

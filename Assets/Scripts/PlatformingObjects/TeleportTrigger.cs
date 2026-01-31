@@ -2,20 +2,12 @@ using UnityEngine;
 
 public class TeleportTrigger : MonoBehaviour
 {
-    SceneLoader sceneLoader;
+    private SceneLoader sceneLoader;
 
-    void Start()
+    private void Start() => sceneLoader = GetComponentInParent<SceneLoader>();
+    private void OnTriggerEnter(Collider other)
     {
-        sceneLoader = GetComponentInParent<SceneLoader>();
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (!other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        sceneLoader.StartTeleport();
+        if (other.CompareTag("Player"))
+            sceneLoader.StartTeleport();
     }
 }

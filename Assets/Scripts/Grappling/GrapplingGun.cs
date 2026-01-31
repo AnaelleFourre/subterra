@@ -38,6 +38,11 @@ public class GrapplingGun : MonoBehaviour
     [SerializeField] private float pauseDuration = 1f; // Durée de la pause en secondes
     private float pauseTimer = 0f; // Timer pour la pause
 
+    private System.Action<InputAction.CallbackContext> pullStarted;
+    private System.Action<InputAction.CallbackContext> pullCanceled;
+    private System.Action<InputAction.CallbackContext> elongateStarted;
+    private System.Action<InputAction.CallbackContext> elongateCanceled;
+
     [SerializeField] private GameObject playerObject;
 
     private void Awake()
@@ -54,29 +59,46 @@ public class GrapplingGun : MonoBehaviour
 
     private void OnEnable()
     {
-        grappleAction.performed += GrappleManager; // Sans lambda
-        pullRopeAction.started += _ => isClimbing = true;
-        pullRopeAction.canceled += _ => isClimbing = false;
-        pullRopeAction.canceled += _ => playerRigidbody.useGravity = true;
+        grappleAction.performed += GrappleManager;
 
-        pullRopeAction.Enable();
+        pullStarted = _ => isClimbing = true;
+        pullCanceled = _ =>
+        {
+            isClimbing = false;
+            playerRigidbody.useGravity = true;
+        };
+
+        elongateStarted = _ => isElongating = true;
+        elongateCanceled = _ =>
+        {
+            isElongating = false;
+            playerRigidbody.useGravity = true;
+        };
+
+        pullRopeAction.started += pullStarted;
+        pullRopeAction.canceled += pullCanceled;
+
+        elongateRopeAction.started += elongateStarted;
+        elongateRopeAction.canceled += elongateCanceled;
+
         grappleAction.Enable();
-
-        elongateRopeAction.started += _ => isElongating = true;
-        elongateRopeAction.canceled += _ => isElongating = false;
-        elongateRopeAction.canceled += _ => playerRigidbody.useGravity = true;
+        pullRopeAction.Enable();
         elongateRopeAction.Enable();
     }
 
     private void OnDisable()
     {
         grappleAction.performed -= GrappleManager;
-        pullRopeAction.started -= _ => isClimbing = true;
-        pullRopeAction.canceled -= _ => isClimbing = false;
-        pullRopeAction.canceled -= _ => playerRigidbody.useGravity = true;
+
+        pullRopeAction.started -= pullStarted;
+        pullRopeAction.canceled -= pullCanceled;
+
+        elongateRopeAction.started -= elongateStarted;
+        elongateRopeAction.canceled -= elongateCanceled;
 
         grappleAction.Disable();
         pullRopeAction.Disable();
+        elongateRopeAction.Disable();
     }
 
     private void Update()

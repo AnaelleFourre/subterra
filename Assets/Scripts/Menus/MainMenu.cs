@@ -10,8 +10,7 @@ public class MainMenu : MonoBehaviour
 {
     private const string Level1SceneName = "Level0";
 
-    [Header("UI References")]
-    public TMP_Dropdown sceneDropdown;
+    [SerializeField] private TMP_Dropdown sceneDropdown;
     [SerializeField] private GameObject firstButtonAutoSelected;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject parametersMenu;

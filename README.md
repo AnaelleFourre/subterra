@@ -47,3 +47,5 @@ Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de pl
 > Fondu au noir : [Fade To Black Transition - Top Down Unity 2D #31](https://www.youtube.com/watch?v=Si6Rn_-3i84)
 
 > Ajout son : [How To Add Sound Effects the RIGHT Way | Unity Tutorial](https://www.youtube.com/watch?v=DU7cgVsU2rM)
+
+> Implémentation VerletChain pour le grappin : [Verlet Chain Unity](https://github.com/GaryMcWhorter/Verlet-Chain-Unity)

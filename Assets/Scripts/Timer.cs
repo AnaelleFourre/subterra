@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
 
 public class Timer : MonoBehaviour
@@ -8,13 +7,13 @@ public class Timer : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     private float timeRemaining;
 
-    void Awake()
+    private void Awake()
     {
         timeRemaining = startTime;
         Debug.Log(startTime + " " + timeRemaining);
     }
 
-    void Update()
+    private void Update()
     {
         if (timeRemaining > 0)
         {
@@ -22,30 +21,22 @@ public class Timer : MonoBehaviour
             DisplayTime(timeRemaining);
         }
         else
-        {
             RestartGame();
-        }
     }
 
-    void DisplayTime(float time)
+    private void DisplayTime(float time)
     {
         if (timerText == null) return;
-
-        int minutes = Mathf.FloorToInt(time / 60);
-        int seconds = Mathf.FloorToInt(time % 60);
-
+        var minutes = Mathf.FloorToInt(time / 60);
+        var seconds = Mathf.FloorToInt(time % 60);
         timerText.text = $"{minutes:00}:{seconds:00}";
     }
 
-    void RestartGame()
+    private void RestartGame()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        var player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
-        {
             RespawnManager.RespawnStart(player);
-        }
-
         timeRemaining = startTime;
     }
 }
-

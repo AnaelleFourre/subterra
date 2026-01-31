@@ -10,19 +10,19 @@ public class MovingPlatform : MonoBehaviour
 
     private Vector3 pointA;
     private Vector3 target;
-    private Rigidbody rbPlatform;
+    private Rigidbody _rigidbody;
     private bool isPaused;
 
     public Vector3 PlatformVelocity { get; private set; }
 
-    void Start()
+    private void Start()
     {
-        rbPlatform = GetComponent<Rigidbody>();
-        pointA = rbPlatform.position;
+        _rigidbody = GetComponent<Rigidbody>();
+        pointA = _rigidbody.position;
         target = pointA + pointB;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (isPaused)
         {
@@ -30,10 +30,10 @@ public class MovingPlatform : MonoBehaviour
             return;
         }
 
-        Vector3 oldPos = rbPlatform.position;
-        Vector3 newPos = Vector3.MoveTowards(oldPos, target, speed * Time.fixedDeltaTime);
+        var oldPos = _rigidbody.position;
+        var newPos = Vector3.MoveTowards(oldPos, target, speed * Time.fixedDeltaTime);
 
-        rbPlatform.MovePosition(newPos);
+        _rigidbody.MovePosition(newPos);
         PlatformVelocity = (newPos - oldPos) / Time.fixedDeltaTime;
 
         if (Vector3.Distance(newPos, target) < 0.05f)
@@ -43,7 +43,7 @@ public class MovingPlatform : MonoBehaviour
         }
     }
 
-    IEnumerator PauseAtTarget()
+    private IEnumerator PauseAtTarget()
     {
         isPaused = true;
         yield return new WaitForSeconds(pauseDuration);

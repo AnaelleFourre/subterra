@@ -6,6 +6,8 @@ TagManager:
   tags:
   - CameraTarget
   - Ladder
+  - MusicSlider
+  - SFXSlider
   layers:
   - Default
   - TransparentFX

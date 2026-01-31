@@ -40,10 +40,10 @@ Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de pl
 
 ### Codes
 
-Ouverture porte + clé : [How to OPEN A DOOR With KEY in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=RQ61nY2WOtA) et [How to OPEN A DOOR in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=-n5398EtqYc)
+> Ouverture porte + clé : [How to OPEN A DOOR With KEY in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=RQ61nY2WOtA) et [How to OPEN A DOOR in UNITY - Easy Tutorial](https://www.youtube.com/watch?v=-n5398EtqYc)
 
-Chargement de scènes : [How To Load Scenes In Unity](https://www.youtube.com/watch?v=d4dq8xubVD8)
+> Chargement de scènes : [How To Load Scenes In Unity](https://www.youtube.com/watch?v=d4dq8xubVD8)
 
-Fondu au noir : [Fade To Black Transition - Top Down Unity 2D #31](https://www.youtube.com/watch?v=Si6Rn_-3i84)
+> Fondu au noir : [Fade To Black Transition - Top Down Unity 2D #31](https://www.youtube.com/watch?v=Si6Rn_-3i84)
 
-Ajout son : [How To Add Sound Effects the RIGHT Way | Unity Tutorial](https://www.youtube.com/watch?v=DU7cgVsU2rM)
+> Ajout son : [How To Add Sound Effects the RIGHT Way | Unity Tutorial](https://www.youtube.com/watch?v=DU7cgVsU2rM)

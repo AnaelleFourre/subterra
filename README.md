@@ -19,7 +19,7 @@ Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de pl
 
 ### Assets
 
-> Plateforme mouvante, clés et blocs : https://assetstore.unity.com/packages/3d/environments/lowpoly-platformer-kit-free-modular-stylized-blocks-319018
+> Skybox, plateforme mouvante, clés et blocs : https://assetstore.unity.com/packages/3d/environments/lowpoly-platformer-kit-free-modular-stylized-blocks-319018
 
 > Glace : https://assetstore.unity.com/packages/2d/textures-materials/4k-tiled-ground-textures-part-1-269480
 
@@ -29,6 +29,8 @@ Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de pl
 ### Son 
 
 > Glace : https://motionarray.com/sound-effects/ice-skating-1900294/
+
+> Skybox menu : https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox-series-free-103633
 
 > Corde : https://elevenlabs.io/sound-effects/rope (Rope 1)
 

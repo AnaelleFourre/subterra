@@ -15,7 +15,7 @@ public class DoorManager : MonoBehaviour
     private Quaternion openRotation;
     private PlayerMovement playerControls;
 
-    void Start()
+    private void Start()
     {
         closedRotation = transform.localRotation;
         openRotation = Quaternion.Euler(0f, openAngle, 0f);

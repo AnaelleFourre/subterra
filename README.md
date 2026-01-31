@@ -23,14 +23,14 @@ Arriverez-vous à retrouver Victor et oserez-vous entrer dans ces cavernes de pl
 
 > Glace : https://assetstore.unity.com/packages/2d/textures-materials/4k-tiled-ground-textures-part-1-269480
 
-> Personnage : Eve par J. Gonzales (mixamo.com)
+> Personnage : "Eve by J. Gonzales" (mixamo.com)
+
+> Skybox menu : https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox-series-free-103633
 
 
 ### Son 
 
 > Glace : https://motionarray.com/sound-effects/ice-skating-1900294/
-
-> Skybox menu : https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox-series-free-103633
 
 > Corde : https://elevenlabs.io/sound-effects/rope (Rope 1)
 

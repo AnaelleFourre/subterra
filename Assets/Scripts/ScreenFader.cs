@@ -7,12 +7,11 @@ using UnityEngine;
 public class ScreenFader : MonoBehaviour
 {
     public static ScreenFader Instance;
-
     [SerializeField] CanvasGroup canvasGroup;
     [SerializeField] float fadeDuration = 0.25f;
     [SerializeField] CinemachineCamera vcam;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -20,16 +19,13 @@ public class ScreenFader : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
-    async Task Fade(float targetTransparency)
+    private async Task Fade(float targetTransparency)
     {
-        float start = canvasGroup.alpha;
-        float t = 0;
-
+        var start = canvasGroup.alpha;
+        var t = 0f;
         while (t < fadeDuration)
         {
             t += Time.deltaTime;
@@ -39,13 +35,7 @@ public class ScreenFader : MonoBehaviour
         canvasGroup.alpha = targetTransparency;
     }
 
-    public async Task FadeOut()
-    {
-        await Fade(1);
-    }
+    public async Task FadeOut() => await Fade(1);
 
-    public async Task FadeIn()
-    {
-        await Fade(0);
-    }
+    public async Task FadeIn() => await Fade(0);
 }
